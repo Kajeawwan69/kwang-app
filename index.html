@@ -14,7 +14,7 @@
 :root{
   --bg:#f6f8f3; --surface:#ffffff; --surface-2:#f2f7ec; --border:rgba(18,48,28,.16);
   --text:#10160f; --text-2:#23302a; --text-3:#62736a;
-  --leaf:#17a75a; --leaf-deep:#0e5c33; --on-leaf:#ffffff; --chitin:#9a6f00;
+  --leaf:#17a75a; --leaf-deep:#0e5c33; --on-leaf:#ffffff; --chitin:#6d4f00;
   --gold:#ffc61a; --ink:#10160f; --pale:#a9bfae;
   --display:'Kanit',system-ui,sans-serif;
   --body:'Kanit',system-ui,sans-serif;
@@ -27,8 +27,11 @@ body{
     radial-gradient(620px 280px at 96% -2%, rgba(255,198,26,.16), transparent 72%),
     var(--bg);
 }
-a{color:var(--leaf-deep);text-decoration:none}
+::selection{background:var(--leaf-deep);color:#ffffff}
+a{color:var(--leaf-deep);text-decoration:none;transition:color 160ms ease}
 a:hover{color:var(--text)}
+a:focus-visible,.btn:focus-visible,.social-links a:focus-visible{outline:2px solid var(--leaf);outline-offset:3px;border-radius:4px}
+.hero-band a:focus-visible,.hero-band .btn:focus-visible{outline-color:var(--gold)}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .en{font-family:var(--display);color:var(--text-3)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
@@ -36,9 +39,11 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .leaf-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;
   background:color-mix(in srgb,var(--leaf) 12%,transparent);border:1px solid color-mix(in srgb,var(--leaf) 30%,transparent);
   font-size:13px;color:var(--leaf-deep);font-weight:600}
-.btn{display:inline-block;font-size:15.5px;font-weight:600;padding:14px 28px;border-radius:12px;cursor:pointer}
-.btn.primary{color:var(--on-leaf);background:var(--leaf)}
-.btn.primary:hover{background:var(--leaf-deep)}
+.btn{display:inline-block;font-size:15.5px;font-weight:600;padding:14px 28px;border-radius:12px;cursor:pointer;
+  transition:background 160ms ease,border-color 160ms ease,color 160ms ease,transform 120ms ease}
+.btn:active{transform:translateY(1px)}
+.btn.primary{color:var(--on-leaf);background:var(--leaf-deep)}
+.btn.primary:hover{filter:brightness(1.18)}
 .btn.ghost{color:var(--text);border:1px solid var(--border)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:18px}
 
@@ -56,7 +61,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero-band .btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
 .hero-band .btn.primary{background:var(--gold);color:var(--ink)}
 .hero-band .btn.primary:hover{background:#ffd84d}
-.hero-band .leaf-chip{background:rgba(255,198,26,.12);border-color:rgba(255,198,26,.35);color:var(--gold)}
+.hero-band .hero-copy .leaf-chip{background:rgba(255,198,26,.12);border-color:rgba(255,198,26,.35);color:var(--gold)}
 
 /* nav */
 .topnav{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;position:relative;z-index:1}
@@ -86,51 +91,44 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero h1{font-size:clamp(24px,3.2vw,34px);font-weight:600;line-height:1.35;letter-spacing:-.005em;margin-top:14px;color:#f2f4ea}
 .hero .en-tag{display:block;font-size:clamp(12.5px,1.4vw,15px);color:rgba(255,255,255,.5);font-weight:400;margin-top:8px;letter-spacing:.01em}
 .hero .lead{font-size:16px;color:rgba(255,255,255,.82);margin-top:22px;max-width:540px}
-.hero .lead-en{font-size:14px;color:rgba(255,255,255,.48);margin-top:10px;max-width:540px;font-style:italic}
+.hero .lead-en{font-size:14px;color:rgba(255,255,255,.68);margin-top:10px;max-width:540px;font-style:italic}
 .hero-ctas{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
-.hero .fine{font-size:13.5px;color:rgba(255,255,255,.45);margin-top:16px}
+.hero .fine{font-size:13.5px;color:rgba(255,255,255,.68);margin-top:16px}
 .specimen{width:min(430px,100%);flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
 .spec-img{position:relative;height:250px;border-radius:16px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .spec-img svg{width:112px;color:var(--pale)}
 .spec-tag{position:absolute;left:14px;top:14px;font-size:11px;color:#f2f4ea;background:#18220fb0;padding:4px 9px;border-radius:8px}
-.spec-mm{position:absolute;right:14px;bottom:14px;font-family:var(--display);font-size:24px;font-weight:700;color:var(--on-leaf);background:var(--chitin);padding:5px 14px;border-radius:10px}
+.spec-mm{position:absolute;right:14px;bottom:14px;font-family:var(--display);font-size:24px;font-weight:700;color:var(--on-leaf);background:var(--chitin);padding:5px 14px;border-radius:10px;font-variant-numeric:tabular-nums}
 .spec-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .spec-facts>div{background:var(--surface-2);border-radius:12px;padding:11px 12px}
 .spec-facts small{display:block;font-size:11px;color:var(--text-3)}
-.spec-facts b{font-size:14px;font-weight:600}
-
-/* stats strip */
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-@media(min-width:900px){.stats{grid-template-columns:repeat(4,1fr)}}
-.stats>div{background:var(--bg);padding:24px 28px}
-.stats b{font-family:var(--display);font-size:28px;font-weight:700;display:block}
-.stats span{font-size:13.5px;color:var(--text-3)}
+.spec-facts b{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
 
 /* sections */
 section{padding:64px 0 8px}
 
-/* story */
-.story{display:grid;grid-template-columns:1fr;gap:28px;margin-top:32px;align-items:start}
-@media(min-width:860px){.story{grid-template-columns:1.3fr 1fr}}
-.story-copy p{font-size:15.5px;color:var(--text-2);margin:0 0 16px}
-.story-copy p.en{font-size:14px;color:var(--text-3);font-style:italic}
-.story-card{padding:26px;background:linear-gradient(150deg,#141c14,#10160f);border:none;color:#fff;border-bottom:2px solid var(--gold)}
-.story-card .row{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid rgba(255,255,255,.1)}
-.story-card .row:first-child{border-top:none;padding-top:0}
-.story-card .row i{font-size:20px;color:var(--gold);margin-top:2px}
-.story-card .row b{display:block;font-size:14.5px}
-.story-card .row span{display:block;font-size:12.5px;color:#9fb2a5;margin-top:2px}
-
-.pillars{display:grid;grid-template-columns:1fr;gap:16px;margin-top:32px}
-@media(min-width:620px){.pillars{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:980px){.pillars{grid-template-columns:repeat(5,1fr)}}
-.pillar{padding:22px 20px;display:flex;flex-direction:column;gap:12px}
-.pillar .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px}
-.pillar .ic.leaf{background:color-mix(in srgb,var(--leaf) 12%,transparent);color:var(--leaf-deep)}
-.pillar .ic.gold{background:color-mix(in srgb,var(--chitin) 12%,transparent);color:var(--chitin)}
-.pillar h3{font-size:16.5px;font-weight:700}
-.pillar p{font-size:13.5px;color:var(--text-2);margin:0;flex-grow:1}
-.pillar .soon{align-self:flex-start;font-size:11.5px;font-weight:600;color:var(--text-3);border:1px solid var(--border);padding:4px 10px;border-radius:100px}
+.pillars{display:flex;flex-direction:column;gap:16px;margin-top:32px}
+@media(min-width:900px){.pillars{flex-direction:row;align-items:stretch}}
+.pillar-main{
+  flex:1 1 380px;padding:28px;display:flex;gap:18px;align-items:flex-start;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--leaf) 7%,var(--surface)),var(--surface));
+}
+.pillar-main .ic{
+  width:52px;height:52px;border-radius:14px;flex-shrink:0;font-size:24px;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--leaf) 14%,transparent);color:var(--leaf-deep);
+}
+.pillar-main h3{font-size:19px;font-weight:700}
+.pillar-main p{font-size:14.5px;color:var(--text-2);margin:8px 0 0}
+.pillar-main .soon{margin-top:14px}
+.pillar-rest{flex:1 1 440px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pillar-minor{padding:17px 18px;display:flex;flex-direction:column;gap:9px}
+.pillar-minor .ic{width:32px;height:32px;border-radius:9px;font-size:15px;display:flex;align-items:center;justify-content:center}
+.pillar-minor .ic.leaf{background:color-mix(in srgb,var(--leaf) 12%,transparent);color:var(--leaf-deep)}
+.pillar-minor .ic.gold{background:color-mix(in srgb,var(--chitin) 12%,transparent);color:var(--chitin)}
+.pillar-minor h3{font-size:14.5px;font-weight:700}
+.pillar-minor p{font-size:12.5px;color:var(--text-2);margin:0;flex-grow:1}
+.soon{align-self:flex-start;font-size:11.5px;font-weight:600;color:var(--text-3);border:1px solid var(--border);padding:4px 10px;border-radius:100px}
 
 .grid-3{display:grid;grid-template-columns:1fr;gap:18px;margin-top:32px}
 @media(min-width:760px){.grid-3{grid-template-columns:repeat(3,1fr)}}
@@ -146,38 +144,6 @@ section{padding:64px 0 8px}
 .feat .ic.gold{background:color-mix(in srgb,var(--chitin) 12%,transparent);color:var(--chitin)}
 .feat h3{font-size:18px;font-weight:700}
 .feat p{font-size:14.5px;color:var(--text-2);margin:6px 0 0}
-
-/* showcase */
-.grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px}
-@media(min-width:900px){.grid-4{grid-template-columns:repeat(4,1fr)}}
-.show{overflow:hidden}
-.show .ph{height:150px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--pale)}
-.show .ph svg{width:56px;height:84px}
-.show .tx{padding:14px 16px 16px}
-.show b{font-size:15px;font-weight:700;display:block}
-.show i{font-size:12px;color:var(--text-3);font-style:italic}
-.show .row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.show .mm{font-family:var(--display);font-size:16px;font-weight:700;color:var(--chitin)}
-.show .who{font-size:12px;color:var(--text-3)}
-
-/* ranking */
-.rank-wrap{display:flex;gap:24px;flex-wrap:wrap;margin-top:0}
-.rank{flex:1 1 460px;padding:28px}
-.rank-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.rank-rows{display:flex;flex-direction:column;gap:1px;margin-top:20px;background:var(--border);border-radius:14px;overflow:hidden}
-.rank-row{display:flex;align-items:center;gap:14px;padding:13px 16px;background:var(--surface)}
-.rank-row.first{background:color-mix(in srgb,var(--chitin) 8%,var(--surface))}
-.rank-row .pos{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text-3);width:28px}
-.rank-row.first .pos{color:var(--chitin)}
-.rank-row .who{font-size:14.5px;color:var(--text-2);flex-grow:1}
-.rank-row.first .who{font-weight:600;color:var(--text)}
-.rank-row .mm{font-family:var(--display);font-size:15px;font-weight:700}
-.aside{width:min(400px,100%);display:flex;flex-direction:column;gap:16px}
-.aside .card{padding:24px}
-.aside h3{font-size:18px;font-weight:700}
-.aside p{font-size:14.5px;color:var(--text-2);margin:8px 0 0}
-.aside .rules{background:color-mix(in srgb,var(--leaf) 8%,transparent);border-color:color-mix(in srgb,var(--leaf) 24%,transparent)}
-.aside .rules h3{color:var(--leaf-deep)}
 
 /* roadmap + cta + footer */
 .roadmap{margin-top:56px;padding:30px 32px;border:1px dashed var(--border);border-radius:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
@@ -284,35 +250,39 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
       <p>ชุมชนคนเลี้ยงด้วงที่รวมทุกอย่างไว้ในที่เดียว</p>
     </div>
     <div class="pillars">
-      <div class="card pillar">
-        <div class="ic leaf"><i class="ph-fill ph-bug"></i></div>
-        <h3>กว่าง (KWANG)</h3>
-        <p>สมุดบันทึกด้วงส่วนตัว บันทึกรายตัว ชั่งน้ำหนัก วัดขนาด เก็บสายเลือดครบ</p>
-        <span class="soon">เร็วๆ นี้</span>
+      <div class="card pillar-main">
+        <div class="ic"><i class="ph-fill ph-bug"></i></div>
+        <div>
+          <h3>กว่าง (KWANG)</h3>
+          <p>สมุดบันทึกด้วงส่วนตัว บันทึกรายตัวตั้งแต่ไข่จนถึงตัวเต็มวัย ชั่งน้ำหนัก วัดขนาด เก็บสายเลือดครบ เป็นฟีเจอร์แรกที่สร้างเสร็จแล้ว</p>
+          <span class="soon">เร็วๆ นี้</span>
+        </div>
       </div>
-      <div class="card pillar">
-        <div class="ic leaf"><i class="ph-fill ph-book-open"></i></div>
-        <h3>บทความ</h3>
-        <p>ความรู้และเทคนิคการเลี้ยงจากคนมีประสบการณ์ ตามระยะการเจริญเติบโต</p>
-        <span class="soon">เร็วๆ นี้</span>
-      </div>
-      <div class="card pillar">
-        <div class="ic gold"><i class="ph-fill ph-chats-circle"></i></div>
-        <h3>กระดานถาม-ตอบ</h3>
-        <p>พื้นที่พูดคุย ถามตอบ และแลกเปลี่ยนประสบการณ์กับคนเลี้ยงด้วงคนอื่น</p>
-        <span class="soon">เร็วๆ นี้</span>
-      </div>
-      <div class="card pillar">
-        <div class="ic gold"><i class="ph-fill ph-storefront"></i></div>
-        <h3>ตลาดซื้อขาย</h3>
-        <p>ซื้อ ขาย และแลกเปลี่ยนด้วงกับอุปกรณ์เลี้ยงกับผู้เลี้ยงคนอื่นอย่างโปร่งใส</p>
-        <span class="soon">เร็วๆ นี้</span>
-      </div>
-      <div class="card pillar">
-        <div class="ic leaf"><i class="ph-fill ph-calendar"></i></div>
-        <h3>กิจกรรม</h3>
-        <p>งานประกวด มีตติ้ง และกิจกรรมรวมกลุ่มคนเลี้ยงด้วง</p>
-        <span class="soon">เร็วๆ นี้</span>
+      <div class="pillar-rest">
+        <div class="card pillar-minor">
+          <div class="ic gold"><i class="ph-fill ph-book-open"></i></div>
+          <h3>บทความ</h3>
+          <p>ความรู้และเทคนิคการเลี้ยงจากผู้มีประสบการณ์</p>
+          <span class="soon">เร็วๆ นี้</span>
+        </div>
+        <div class="card pillar-minor">
+          <div class="ic leaf"><i class="ph-fill ph-chats-circle"></i></div>
+          <h3>กระดานถาม-ตอบ</h3>
+          <p>พูดคุยและแลกเปลี่ยนกับคนเลี้ยงด้วงคนอื่น</p>
+          <span class="soon">เร็วๆ นี้</span>
+        </div>
+        <div class="card pillar-minor">
+          <div class="ic gold"><i class="ph-fill ph-storefront"></i></div>
+          <h3>ตลาดซื้อขาย</h3>
+          <p>ซื้อ ขาย แลกเปลี่ยนกันอย่างโปร่งใส</p>
+          <span class="soon">เร็วๆ นี้</span>
+        </div>
+        <div class="card pillar-minor">
+          <div class="ic leaf"><i class="ph-fill ph-calendar"></i></div>
+          <h3>กิจกรรม</h3>
+          <p>งานประกวดและมีตติ้งคนเลี้ยงด้วง</p>
+          <span class="soon">เร็วๆ นี้</span>
+        </div>
       </div>
     </div>
   </section>
