@@ -161,6 +161,21 @@ section{padding:64px 0 8px}
 .final h2{font-size:clamp(28px,4vw,38px);font-weight:700;line-height:1.3}
 .final .en-sub{display:block;font-size:14px;color:var(--text-3);font-weight:500;margin-top:8px}
 .final p{font-size:16px;color:var(--text-2);margin:12px 0 0}
+.final-appname{color:var(--leaf-deep)}
+.final-appname .en{font-size:.6em;font-weight:500;margin-left:6px}
+.final-story{max-width:620px;margin:22px auto 0;padding:20px 22px;background:var(--surface-2);border:1px solid var(--border);border-radius:16px;text-align:left}
+.final-story p{margin:0;font-size:15.5px;color:var(--text-2)}
+.final-story-en{margin-top:10px!important;font-size:13.5px!important;color:var(--text-3)!important}
+.final-features{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0 0;text-align:left}
+@media(max-width:620px){.final-features{grid-template-columns:1fr}}
+.final-feature{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:14px}
+.final-feature i{font-size:20px;color:var(--leaf-deep);flex-shrink:0;margin-top:2px}
+.final-feature span{font-size:14.5px;color:var(--text-2);line-height:1.5}
+.soon-badge{display:inline-flex;align-items:center;gap:9px;margin-top:28px;padding:9px 20px;border-radius:100px;
+  background:color-mix(in srgb,var(--gold) 18%,transparent);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
+  font-weight:700;font-size:14px;color:var(--chitin)}
+.soon-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 6px 2px color-mix(in oklch, var(--copper) 50%, var(--gold))}
 footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 .foot{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .foot .brand .mark{width:24px;height:24px;border-radius:7px}
@@ -359,8 +374,18 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 
 <div class="wrap">
   <div class="final">
-    <h2>พบกับ LIANGDUANG<span class="en-sub">A community for beetle keepers</span></h2>
-    <p>กำลังเตรียมความพร้อมอยู่ครับ</p>
+    <h2>เตรียมพบกับแอปเลี้ยงด้วง<br><span class="final-appname">กว่าง<span class="en">(KWANG)</span></span></h2>
+    <div class="final-story">
+      <p>ทุกคนคงเจอปัญหาเลี้ยงด้วง ตอนแรกก็จะจำได้ว่าเลี้ยงอะไร กี่ตัว เปลี่ยนอาหารวันไหนหรือยัง แต่พอมันเรียกกองทัพ หรือเพื่อนๆมันมา มันเยอะจนตาลาย จนทำไม่ถูกว่าจะเริ่มจากตัวไหนก่อนดี แอปนี้จึงจะมาแก้ปัญหานั้นครับ</p>
+      <p class="final-story-en">Every keeper knows the feeling — at first you remember exactly what you have, but once the colony grows into an army of beetle friends, it's easy to lose track of where to even start. KWANG exists to solve exactly that.</p>
+    </div>
+    <div class="final-features">
+      <div class="final-feature"><i class="ph-fill ph-bug"></i><span>บันทึกด้วงแต่ละตัวได้ครบทุกช่วงชีวิต ไข่ → L1-L3 → ดักแด้ → ตัวเต็มวัย</span></div>
+      <div class="final-feature"><i class="ph-fill ph-bell-ringing"></i><span>แจ้งเตือนอัตโนมัติเมื่อถึงเวลาเปลี่ยนอาหารหรือดูแล</span></div>
+      <div class="final-feature"><i class="ph-fill ph-cloud-sun"></i><span>เช็คสภาพอากาศเทียบกับช่วงที่เหมาะกับการเลี้ยงด้วง</span></div>
+      <div class="final-feature"><i class="ph-fill ph-floppy-disk"></i><span>สำรองและย้ายข้อมูลด้วยไฟล์ export/import ได้เอง</span></div>
+    </div>
+    <span class="soon-badge"><span class="dot"></span>Coming soon!</span>
   </div>
 
   <footer>
