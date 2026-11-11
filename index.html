@@ -121,6 +121,17 @@ section{padding:64px 0 8px}
 .story-card .row b{display:block;font-size:14.5px}
 .story-card .row span{display:block;font-size:12.5px;color:#9fb2a5;margin-top:2px}
 
+.pillars{display:grid;grid-template-columns:1fr;gap:16px;margin-top:32px}
+@media(min-width:620px){.pillars{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:980px){.pillars{grid-template-columns:repeat(5,1fr)}}
+.pillar{padding:22px 20px;display:flex;flex-direction:column;gap:12px}
+.pillar .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px}
+.pillar .ic.leaf{background:color-mix(in srgb,var(--leaf) 12%,transparent);color:var(--leaf-deep)}
+.pillar .ic.gold{background:color-mix(in srgb,var(--chitin) 12%,transparent);color:var(--chitin)}
+.pillar h3{font-size:16.5px;font-weight:700}
+.pillar p{font-size:13.5px;color:var(--text-2);margin:0;flex-grow:1}
+.pillar .soon{align-self:flex-start;font-size:11.5px;font-weight:600;color:var(--text-3);border:1px solid var(--border);padding:4px 10px;border-radius:100px}
+
 .grid-3{display:grid;grid-template-columns:1fr;gap:18px;margin-top:32px}
 @media(min-width:760px){.grid-3{grid-template-columns:repeat(3,1fr)}}
 .step{padding:26px}
@@ -218,6 +229,7 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
     <nav class="topnav">
       <div class="brand"><span class="mark"><i class="ph-fill ph-bug"></i></span><b>กว่าง<small>KWANG</small></b></div>
       <div class="navlinks">
+        <a href="#features">ฟีเจอร์</a>
         <a href="#how">วิธีใช้งาน</a>
         <a href="#roadmap">แผนต่อไป</a>
       </div>
@@ -226,16 +238,16 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 
     <div class="hero">
       <div class="hero-copy">
-        <span class="leaf-chip"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold)"></span>เร็วๆ นี้ · เริ่มที่ด้วงก่อน</span>
+        <span class="leaf-chip"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold)"></span>เร็วๆ นี้ · ชุมชนคนเลี้ยงด้วง</span>
         <div class="wordmark">กว่าง<span class="rom">(KWANG)</span></div>
-        <h1>บันทึกทุกมิลลิเมตร<br>ของด้วงที่คุณเลี้ยง
-          <span class="en-tag">Record every millimeter of the beetles you raise.</span>
+        <h1>ชุมชนคนเลี้ยงด้วง<br>ครบในที่เดียว
+          <span class="en-tag">One community for every beetle keeper.</span>
         </h1>
-        <p class="lead">กว่าง (KWANG) คือ Global Beetle Community &amp; Marketplace โดย ZOOTRONIA จดบันทึกการเลี้ยงเป็นรายตัว วัดน้ำหนักหนอนและขนาดตัวเต็มวัย เก็บสายเลือดให้ครบ แล้วเทียบสถิติและซื้อขายแลกเปลี่ยนกับผู้เลี้ยงคนอื่นด้วยตัวเลขที่ยืนยันได้</p>
-        <p class="lead-en">KWANG is a Global Beetle Community &amp; Marketplace by ZOOTRONIA. Track every animal individually, log larval weight and adult size, keep bloodlines complete, then compare stats and trade with keepers worldwide using numbers you can trust.</p>
+        <p class="lead">กว่าง (KWANG) คือชุมชนสำหรับคนเลี้ยงด้วงโดยเฉพาะ โดย ZOOTRONIA รวมสมุดบันทึกด้วงส่วนตัว บทความความรู้การเลี้ยง กระดานถาม-ตอบ ตลาดซื้อขายแลกเปลี่ยน และกิจกรรมคนเลี้ยงด้วงไว้ในที่เดียว</p>
+        <p class="lead-en">KWANG is a dedicated community for beetle keepers by ZOOTRONIA, bringing personal record-keeping, care articles, a discussion board, a marketplace, and keeper events together in one place.</p>
         <div class="hero-ctas">
           <a class="btn primary" href="app.html">เร็วๆ นี้</a>
-          <a class="btn ghost" href="#how">ดูวิธีใช้งาน</a>
+          <a class="btn ghost" href="#features">ดูว่ามีอะไรบ้าง</a>
         </div>
         <p class="fine" style="font-style:italic">Born from Thailand. Built for Beetle Keepers Worldwide.</p>
         <p class="fine">ใช้งานฟรี · ไม่ต้องผูกบัตร · ข้อมูลอยู่ในเครื่องของคุณ ใช้งานออฟไลน์ได้</p>
@@ -265,10 +277,50 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 </div>
 
 <div class="wrap">
+  <section id="features">
+    <div class="sec-head">
+      <h2>ในเว็บนี้มีอะไรบ้าง</h2>
+      <div class="en-sub">What's inside</div>
+      <p>ชุมชนคนเลี้ยงด้วงที่รวมทุกอย่างไว้ในที่เดียว</p>
+    </div>
+    <div class="pillars">
+      <div class="card pillar">
+        <div class="ic leaf"><i class="ph-fill ph-bug"></i></div>
+        <h3>กว่าง (KWANG)</h3>
+        <p>สมุดบันทึกด้วงส่วนตัว บันทึกรายตัว ชั่งน้ำหนัก วัดขนาด เก็บสายเลือดครบ</p>
+        <span class="soon">เร็วๆ นี้</span>
+      </div>
+      <div class="card pillar">
+        <div class="ic leaf"><i class="ph-fill ph-book-open"></i></div>
+        <h3>บทความ</h3>
+        <p>ความรู้และเทคนิคการเลี้ยงจากคนมีประสบการณ์ ตามระยะการเจริญเติบโต</p>
+        <span class="soon">เร็วๆ นี้</span>
+      </div>
+      <div class="card pillar">
+        <div class="ic gold"><i class="ph-fill ph-chats-circle"></i></div>
+        <h3>กระดานถาม-ตอบ</h3>
+        <p>พื้นที่พูดคุย ถามตอบ และแลกเปลี่ยนประสบการณ์กับคนเลี้ยงด้วงคนอื่น</p>
+        <span class="soon">เร็วๆ นี้</span>
+      </div>
+      <div class="card pillar">
+        <div class="ic gold"><i class="ph-fill ph-storefront"></i></div>
+        <h3>ตลาดซื้อขาย</h3>
+        <p>ซื้อ ขาย และแลกเปลี่ยนด้วงกับอุปกรณ์เลี้ยงกับผู้เลี้ยงคนอื่นอย่างโปร่งใส</p>
+        <span class="soon">เร็วๆ นี้</span>
+      </div>
+      <div class="card pillar">
+        <div class="ic leaf"><i class="ph-fill ph-calendar"></i></div>
+        <h3>กิจกรรม</h3>
+        <p>งานประกวด มีตติ้ง และกิจกรรมรวมกลุ่มคนเลี้ยงด้วง</p>
+        <span class="soon">เร็วๆ นี้</span>
+      </div>
+    </div>
+  </section>
+
   <section id="how">
     <div class="sec-head">
-      <h2>ใช้งานอย่างไร</h2>
-      <div class="en-sub">How it works</div>
+      <h2>กว่าง (KWANG): ใช้งานอย่างไร</h2>
+      <div class="en-sub">How the record book works</div>
       <p>สามขั้นตอน ตั้งแต่วันที่ได้ไข่จนถึงวันที่ติดอันดับ</p>
     </div>
     <div class="grid-3">
