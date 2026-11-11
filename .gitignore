@@ -4,6 +4,9 @@ Design/
 # สิทธิ์คำสั่งของ Claude Code บนเครื่องนี้
 .claude/
 
+# ข้อมูล sidecar/critique ของ Impeccable skill (เฉพาะเครื่องนี้)
+.impeccable/
+
 # ลิงก์โปรเจกต์ Vercel เฉพาะเครื่องนี้ (ไม่ใช้ Vercel แล้ว แต่กันไว้)
 .vercel/
 .vercelignore

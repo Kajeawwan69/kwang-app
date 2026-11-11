@@ -13,6 +13,15 @@ const STAGES = [
 ];
 const stageOf = id => STAGES.find(s => s.id === id) || STAGES[0];
 
+/* กลุ่มระยะสำหรับฟอร์ม — รวม L1–L3 เป็น "หนอน" กลุ่มเดียว ไม่ให้ตัวเลือกเกิน 4 ตัวในแถวเดียว */
+const STAGE_GROUPS = [
+  { id: 'egg', label: 'ไข่', stages: ['egg'] },
+  { id: 'larva', label: 'หนอน', stages: ['l1', 'l2', 'l3'] },
+  { id: 'pupa', label: 'ดักแด้', stages: ['pupa'] },
+  { id: 'adult', label: 'ตัวเต็มวัย', stages: ['adult'] },
+];
+const groupOfStage = id => STAGE_GROUPS.find(g => g.stages.includes(id)) || STAGE_GROUPS[0];
+
 const SEX = {
   male:    { label: 'ผู้',      icon: 'ph ph-gender-male' },
   female:  { label: 'เมีย',     icon: 'ph ph-gender-female' },
@@ -123,6 +132,80 @@ function openModal(bodyHtml) {
 function closeModal() {
   const bd = document.getElementById('modal-backdrop');
   if (bd) bd.remove();
+}
+
+function toastAction(msg, actionLabel, onAction, ms = 6000) {
+  let t = $('#toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+  t.innerHTML = `<span>${esc(msg)}</span>${actionLabel ? `<button type="button" class="toast-action">${esc(actionLabel)}</button>` : ''}`;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  const hide = () => t.classList.remove('show');
+  toast._t = setTimeout(hide, ms);
+  const btn = t.querySelector('.toast-action');
+  if (btn) btn.addEventListener('click', () => { clearTimeout(toast._t); hide(); onAction(); }, { once: true });
+}
+
+/* แทน confirm() ของเบราว์เซอร์ — คืนค่า true/false ตามปุ่มที่กด */
+function confirmModal({ title, message, confirmLabel = 'ยืนยัน', cancelLabel = 'ยกเลิก', danger = false, photo, name, sub, typedPhrase }) {
+  return new Promise(resolve => {
+    const meta = name ? `
+      <div class="confirm-meta">
+        ${photo ? `<div class="confirm-meta-thumb">${photo}</div>` : ''}
+        <div class="confirm-meta-tx"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>
+      </div>` : '';
+    const phraseField = typedPhrase ? `
+      <div class="field" style="margin-top:10px">
+        <label for="cm-phrase">พิมพ์ "${esc(typedPhrase)}" เพื่อยืนยัน</label>
+        <input id="cm-phrase" autocomplete="off">
+      </div>` : '';
+    const modal = openModal(`
+      <div class="confirm-head ${danger ? 'danger' : ''}"><i class="ph-fill ${danger ? 'ph-warning' : 'ph-question'}"></i><span>${esc(title)}</span></div>
+      ${meta}
+      <p class="confirm-msg">${esc(message)}</p>
+      ${phraseField}
+      <div class="confirm-actions">
+        <button type="button" class="btn" id="cm-cancel">${esc(cancelLabel)}</button>
+        <button type="button" class="btn ${danger ? 'danger solid' : 'primary'}" id="cm-ok" ${typedPhrase ? 'disabled' : ''}>${esc(confirmLabel)}</button>
+      </div>`);
+    const finish = ok => { closeModal(); resolve(ok); };
+    modal.querySelector('#cm-cancel').addEventListener('click', () => finish(false));
+    modal.querySelector('#cm-ok').addEventListener('click', () => finish(true));
+    const phraseInput = modal.querySelector('#cm-phrase');
+    if (phraseInput) {
+      const okBtn = modal.querySelector('#cm-ok');
+      phraseInput.addEventListener('input', () => { okBtn.disabled = phraseInput.value.trim() !== typedPhrase; });
+      phraseInput.focus();
+    }
+    document.getElementById('modal-backdrop').addEventListener('click', e => { if (e.target.id === 'modal-backdrop') finish(false); });
+  });
+}
+
+/* แทน prompt() ของเบราว์เซอร์ — คืนค่าข้อความ หรือ null ถ้ายกเลิก */
+function inputModal({ title, label, type = 'text', value = '', placeholder = '', confirmLabel = 'บันทึก', cancelLabel = 'ยกเลิก', min }) {
+  return new Promise(resolve => {
+    const isArea = type === 'textarea';
+    const fieldHtml = isArea
+      ? `<textarea id="im-field" placeholder="${esc(placeholder)}">${esc(value)}</textarea>`
+      : `<input id="im-field" type="${esc(type)}" ${type === 'number' ? `step="0.1" inputmode="decimal" ${min !== undefined ? `min="${min}"` : ''}` : ''} value="${esc(value)}" placeholder="${esc(placeholder)}">`;
+    const modal = openModal(`
+      <div class="confirm-head"><i class="ph ph-note-pencil"></i><span>${esc(title)}</span></div>
+      <div class="field" style="margin-top:10px">
+        <label for="im-field">${esc(label)}</label>
+        ${fieldHtml}
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="btn" id="im-cancel">${esc(cancelLabel)}</button>
+        <button type="button" class="btn primary" id="im-ok">${esc(confirmLabel)}</button>
+      </div>`);
+    const field = modal.querySelector('#im-field');
+    field.focus();
+    const finish = v => { closeModal(); resolve(v); };
+    modal.querySelector('#im-cancel').addEventListener('click', () => finish(null));
+    modal.querySelector('#im-ok').addEventListener('click', () => finish(field.value.trim()));
+    field.addEventListener('keydown', e => { if (e.key === 'Enter' && !isArea) { e.preventDefault(); finish(field.value.trim()); } });
+    document.getElementById('modal-backdrop').addEventListener('click', e => { if (e.target.id === 'modal-backdrop') finish(null); });
+  });
 }
 
 /* งานดูแลตามระยะ: type ใช้ตรงกับชนิด log, days = รอบวัน */
@@ -456,8 +539,9 @@ async function viewBeetles(view, stageArg) {
     $('#btable-body').innerHTML = empty || list.map(beetleTableRowHTML).join('');
     bindRowNav($('#blist'));
     bindRowNav($('#btable-body'));
-    document.querySelectorAll('.filter-chips .chip').forEach(p =>
-      p.classList.toggle('on', p.dataset.f === filter));
+    document.querySelectorAll('.filter-chips .chip').forEach(p => {
+      const on = p.dataset.f === filter; p.classList.toggle('on', on); p.setAttribute('aria-pressed', String(on));
+    });
   };
 
   view.innerHTML = `
@@ -467,7 +551,7 @@ async function viewBeetles(view, stageArg) {
       <a class="btn primary" href="#/add"><i class="ph ph-plus"></i>บันทึกด้วง</a>
     </div>
     <div class="filter-chips chip-row">
-      ${FILTERS.map(f => `<span class="chip" data-f="${f.id}" role="button" tabindex="0">${esc(f.label)}</span>`).join('')}
+      ${FILTERS.map(f => `<button type="button" class="chip" data-f="${f.id}" aria-pressed="false">${esc(f.label)}</button>`).join('')}
     </div>
     <div id="blist" class="mobile-only"></div>
     <div class="beetles-table">
@@ -479,7 +563,6 @@ async function viewBeetles(view, stageArg) {
   $('#bsearch').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); draw(); });
   document.querySelectorAll('.filter-chips .chip').forEach(p => {
     p.addEventListener('click', () => { filter = p.dataset.f; draw(); });
-    p.addEventListener('keydown', e => { if (e.key === 'Enter') { filter = p.dataset.f; draw(); } });
   });
   draw();
 }
@@ -547,7 +630,10 @@ async function viewDetail(view, id) {
 
   const refresh = () => viewDetail(view, id);
   $('#qa-weigh').addEventListener('click', async () => {
-    const w = prompt('น้ำหนักที่ชั่งได้ (กรัม):', b.weight || '');
+    const w = await inputModal({
+      title: 'ชั่งน้ำหนัก', label: weightLabelFor(b.stage), type: 'number',
+      value: b.weight || '', placeholder: weightHintFor(b.stage), min: 0,
+    });
     if (w === null) return;
     const val = parseFloat(w);
     await addLog(id, 'weigh', isNaN(val) ? null : val, '');
@@ -557,23 +643,41 @@ async function viewDetail(view, id) {
   $('#qa-sub').addEventListener('click', async () => { await addLog(id, 'substrate'); toast('บันทึกเปลี่ยนดินแล้ว ✓'); refresh(); });
   $('#qa-jelly').addEventListener('click', async () => { await addLog(id, 'jelly'); toast('บันทึกเยลลี่แล้ว ✓'); refresh(); });
   $('#qa-note').addEventListener('click', async () => {
-    const n = prompt('โน้ต:');
+    const n = await inputModal({ title: 'เพิ่มโน้ต', label: 'โน้ต', type: 'textarea', placeholder: 'เช่น เขาสมมาตร กินเยลลี่ดี' });
     if (!n) return;
     await addLog(id, 'note', null, n); toast('บันทึกโน้ตแล้ว ✓'); refresh();
   });
   const qs = $('#qa-stage');
   if (qs) qs.addEventListener('click', async () => {
-    if (!confirm(`ยืนยันเลื่อนระยะเป็น "${nextSt.label}" ?`)) return;
+    const ok = await confirmModal({
+      title: `เลื่อนระยะเป็น "${nextSt.label}"?`,
+      message: `${beetleTitle(b)} จะเปลี่ยนจาก ${stageOf(b.stage).label} เป็น ${nextSt.label}`,
+      confirmLabel: 'ยืนยันเลื่อนระยะ',
+    });
+    if (!ok) return;
     b.stage = nextSt.id; b.updatedAt = new Date().toISOString();
     await ZDB.put('beetles', b);
     await addLog(id, 'stage', nextSt.id, '');
     toast(`เลื่อนระยะเป็น ${nextSt.label} แล้ว 🎉`); refresh();
   });
   $('#qa-del').addEventListener('click', async () => {
-    if (!confirm(`ลบ "${b.name || b.code || 'ด้วงตัวนี้'}" และประวัติทั้งหมด? การลบย้อนกลับไม่ได้`)) return;
+    const ok = await confirmModal({
+      title: 'ลบด้วงตัวนี้?',
+      message: `การลบย้อนกลับไม่ได้ ระบบจะลบ "${beetleTitle(b)}" และประวัติทั้งหมด ${logs.length} รายการ`,
+      name: beetleTitle(b), sub: beetleSub(b), photo: thumbInner(b),
+      danger: true, confirmLabel: 'ลบด้วงตัวนี้',
+    });
+    if (!ok) return;
+    const snapshotLogs = await ZDB.logsOf(id);
     await ZDB.delLogsOf(id);
     await ZDB.del('beetles', id);
-    toast('ลบแล้ว'); location.hash = '#/beetles';
+    location.hash = '#/beetles';
+    toastAction('ลบแล้ว', 'เลิกทำ', async () => {
+      await ZDB.put('beetles', b);
+      for (const l of snapshotLogs) await ZDB.put('logs', l);
+      toast('กู้คืนแล้ว ✓');
+      location.hash = '#/beetle/' + id;
+    });
   });
 }
 
@@ -590,10 +694,15 @@ async function viewForm(view, id) {
   let stage = b.stage || 'l1';
   let origin = b.source || '';
 
+  let showMore = !!(editing || b.weight || b.size || b.container || b.bloodline || b.notes || b.source);
+  let stageGroup = groupOfStage(stage).id;
+
   const groupLabel = tx => `<div class="group-label"><span class="rule"></span><span>${tx}</span></div>`;
-  const sexChip = v => `<span class="chip" data-sex="${v}" role="button" tabindex="0"><i class="${sexIcon(v)}"></i>${esc(sexLabel(v))}</span>`;
-  const stageChip = s => `<span class="chip" data-stage="${s.id}" role="button" tabindex="0">${esc(s.label)}</span>`;
-  const originChip = o => `<span class="chip" data-origin="${esc(o)}" role="button" tabindex="0">${esc(o)}</span>`;
+  const sexChip = v => `<button type="button" class="chip" data-sex="${v}" aria-pressed="false"><i class="${sexIcon(v)}"></i>${esc(sexLabel(v))}</button>`;
+  const stageChip = s => `<button type="button" class="chip" data-stage="${s.id}" aria-pressed="false">${esc(s.label)}</button>`;
+  const stageGroupChip = g => `<button type="button" class="chip" data-group="${g.id}" aria-pressed="false">${esc(g.label)}</button>`;
+  const originChip = o => `<button type="button" class="chip" data-origin="${esc(o)}" aria-pressed="false">${esc(o)}</button>`;
+  const moreLabel = () => showMore ? 'ซ่อนรายละเอียดเพิ่มเติม' : 'เพิ่มรายละเอียด (ขนาด • สายเลือด • ที่มา)';
 
   view.innerHTML = `
     <div class="page-head"><h1>${editing ? '✏️ แก้ไขข้อมูลด้วง' : 'บันทึกด้วงตัวใหม่'}</h1><p class="sub">กรอกเท่าที่รู้ แก้เพิ่มภายหลังได้</p></div>
@@ -617,12 +726,17 @@ async function viewForm(view, id) {
             <datalist id="species-dl">${SPECIES_LIST.map(s => `<option value="${esc(s)}">`).join('')}</datalist>
           </div>
           <div class="field"><label>เพศ</label><div class="chip-row" id="sex-picker">${['male', 'female', 'unknown'].map(sexChip).join('')}</div></div>
-          <div class="field"><label>ระยะการเจริญเติบโต</label><div class="chip-row" id="stage-picker">${STAGES.map(stageChip).join('')}</div></div>
+          <div class="field">
+            <label>ระยะการเจริญเติบโต</label>
+            <div class="chip-row" id="stage-group-picker">${STAGE_GROUPS.map(stageGroupChip).join('')}</div>
+            <div class="chip-row" id="stage-sub-picker" style="margin-top:7px"></div>
+          </div>
+          <button type="button" class="btn small" id="toggle-more">${moreLabel()}</button>
         </div>
 
-        <div class="group-divider"></div>
+        <div class="group-divider adv-block" ${showMore ? '' : 'hidden'}></div>
 
-        <div class="form-group">
+        <div class="form-group adv-block" ${showMore ? '' : 'hidden'}>
           ${groupLabel('การวัด')}
           <div class="frow-2">
             <div class="field"><label for="f-weight" id="f-weight-label">${weightLabelFor(stage)}</label><input id="f-weight" type="number" step="0.1" min="0" inputmode="decimal" value="${b.weight ?? ''}" placeholder="${weightHintFor(stage)}"></div>
@@ -632,9 +746,9 @@ async function viewForm(view, id) {
       </div>
 
       <div>
-        <div class="field" style="margin-bottom:14px"><label for="f-container">ภาชนะ / กล่องเลี้ยง</label><input id="f-container" value="${esc(b.container)}" placeholder="กล่อง 4.5 ลิตร · ชั้น B-02"></div>
+        <div class="field adv-block" style="margin-bottom:14px" ${showMore ? '' : 'hidden'}><label for="f-container">ภาชนะ / กล่องเลี้ยง</label><input id="f-container" value="${esc(b.container)}" placeholder="กล่อง 4.5 ลิตร · ชั้น B-02"></div>
 
-        <div class="form-group">
+        <div class="form-group adv-block" ${showMore ? '' : 'hidden'}>
           ${groupLabel('ที่มา')}
           <div class="field"><label>ได้มาจาก</label><div class="chip-row" id="origin-picker">${ORIGIN_LIST.map(originChip).join('')}</div></div>
           <div class="frow-2">
@@ -652,18 +766,44 @@ async function viewForm(view, id) {
       </div>
     </form>`;
 
-  const drawSex = () => view.querySelectorAll('#sex-picker .chip').forEach(x => x.classList.toggle('on', x.dataset.sex === sex));
-  const drawStage = () => view.querySelectorAll('#stage-picker .chip').forEach(x => x.classList.toggle('on', x.dataset.stage === stage));
-  const drawOrigin = () => view.querySelectorAll('#origin-picker .chip').forEach(x => x.classList.toggle('on', x.dataset.origin === origin));
-  drawSex(); drawStage(); drawOrigin();
-
-  view.querySelectorAll('#sex-picker .chip').forEach(x => x.addEventListener('click', () => { sex = x.dataset.sex; drawSex(); }));
-  view.querySelectorAll('#stage-picker .chip').forEach(x => x.addEventListener('click', () => {
-    stage = x.dataset.stage; drawStage();
+  const drawSex = () => view.querySelectorAll('#sex-picker .chip').forEach(x => {
+    const on = x.dataset.sex === sex; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on));
+  });
+  const drawStageGroup = () => view.querySelectorAll('#stage-group-picker .chip').forEach(x => {
+    const on = x.dataset.group === stageGroup; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on));
+  });
+  const syncWeightField = () => {
     $('#f-weight-label').textContent = weightLabelFor(stage);
     $('#f-weight').placeholder = weightHintFor(stage);
+  };
+  const drawStageSub = () => {
+    const g = STAGE_GROUPS.find(x => x.id === stageGroup);
+    const sub = $('#stage-sub-picker');
+    if (g.stages.length <= 1) { sub.innerHTML = ''; return; }
+    sub.innerHTML = g.stages.map(sid => stageChip(stageOf(sid))).join('');
+    sub.querySelectorAll('.chip').forEach(x => {
+      const on = x.dataset.stage === stage; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on));
+      x.addEventListener('click', () => { stage = x.dataset.stage; drawStageSub(); syncWeightField(); });
+    });
+  };
+  const drawOrigin = () => view.querySelectorAll('#origin-picker .chip').forEach(x => {
+    const on = x.dataset.origin === origin; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on));
+  });
+  drawSex(); drawStageGroup(); drawStageSub(); drawOrigin();
+
+  view.querySelectorAll('#sex-picker .chip').forEach(x => x.addEventListener('click', () => { sex = x.dataset.sex; drawSex(); }));
+  view.querySelectorAll('#stage-group-picker .chip').forEach(x => x.addEventListener('click', () => {
+    stageGroup = x.dataset.group; drawStageGroup();
+    const g = STAGE_GROUPS.find(gg => gg.id === stageGroup);
+    stage = g.stages.includes(stage) ? stage : g.stages[0];
+    drawStageSub(); syncWeightField();
   }));
   view.querySelectorAll('#origin-picker .chip').forEach(x => x.addEventListener('click', () => { origin = x.dataset.origin; drawOrigin(); }));
+  $('#toggle-more').addEventListener('click', () => {
+    showMore = !showMore;
+    view.querySelectorAll('.adv-block').forEach(el => { el.hidden = !showMore; });
+    $('#toggle-more').textContent = moreLabel();
+  });
 
   $('#f-photo').addEventListener('change', e => {
     const f = e.target.files[0];
@@ -904,7 +1044,9 @@ async function viewWorld(view) {
     });
   };
 
-  const drawTabs = () => view.querySelectorAll('#world-tabs .chip').forEach(c => c.classList.toggle('on', c.dataset.tab === tab));
+  const drawTabs = () => view.querySelectorAll('#world-tabs .chip').forEach(c => {
+    const on = c.dataset.tab === tab; c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on));
+  });
 
   const drawBody = () => {
     $('#world-body').innerHTML = tab === 'news' ? renderNews() : tab === 'board' ? renderBoard() : renderAuction();
@@ -922,7 +1064,7 @@ async function viewWorld(view) {
     <div class="page-head"><h1>Beetle World</h1>
       <p class="sub">ข่าวสารจากผู้เลี้ยง และสถิติที่ลงแข่งกัน</p></div>
     <div class="chip-row" id="world-tabs" style="margin-bottom:14px">
-      ${WORLD_TABS.map(t => `<span class="chip" data-tab="${t.id}" role="button" tabindex="0">${t.label}</span>`).join('')}
+      ${WORLD_TABS.map(t => `<button type="button" class="chip" data-tab="${t.id}" aria-pressed="false">${t.label}</button>`).join('')}
     </div>
     <div id="world-body"></div>`;
 
@@ -953,7 +1095,9 @@ async function viewShop(view) {
       .map(c => ({ label: c.label, items: PRODUCTS.filter(p => p.category === c.key) }))
       .filter(g => g.items.length);
 
-    view.querySelectorAll('#shop-cats .chip').forEach(c => c.classList.toggle('on', c.dataset.cat === cat));
+    view.querySelectorAll('#shop-cats .chip').forEach(c => {
+      const on = c.dataset.cat === cat; c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on));
+    });
 
     $('#shop-body').innerHTML = `
       ${shopRole === 'admin' ? `
@@ -1176,19 +1320,20 @@ async function viewShop(view) {
     <div class="page-head"><h1>TwinBeetle Store</h1><p class="sub" id="shop-sub"></p></div>
     <div class="toolbar" style="align-items:stretch">
       <div class="chip-row" id="shop-role" style="flex:1 1 200px">
-        <span class="chip" data-role="admin" role="button" tabindex="0"><i class="ph ph-clipboard-text"></i> ผู้ขาย</span>
-        <span class="chip" data-role="customer" role="button" tabindex="0"><i class="ph ph-shopping-cart"></i> ลูกค้า</span>
+        <button type="button" class="chip" data-role="admin" aria-pressed="false"><i class="ph ph-clipboard-text"></i> ผู้ขาย</button>
+        <button type="button" class="chip" data-role="customer" aria-pressed="false"><i class="ph ph-shopping-cart"></i> ลูกค้า</button>
       </div>
       <button type="button" class="btn ink" id="cart-btn" style="position:relative"><i class="ph-fill ph-basket"></i><span id="cart-badge" class="cart-badge" hidden>0</span></button>
     </div>
     <div class="chip-row" id="shop-cats" style="margin:12px 0">
-      ${SHOP_CATS.map(c => `<span class="chip" data-cat="${c.key}" role="button" tabindex="0">${esc(c.label)}</span>`).join('')}
+      ${SHOP_CATS.map(c => `<button type="button" class="chip" data-cat="${c.key}" aria-pressed="false">${esc(c.label)}</button>`).join('')}
     </div>
     <div id="shop-body"></div>`;
 
   $('#shop-sub').textContent = shopRole === 'admin' ? 'จัดการสต็อกสินค้าและออเดอร์' : 'เลือกสินค้าและเปิดออเดอร์';
   view.querySelectorAll('#shop-role .chip').forEach(c => {
-    c.classList.toggle('on', c.dataset.role === shopRole);
+    const on = c.dataset.role === shopRole;
+    c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on));
     c.addEventListener('click', () => { shopRole = c.dataset.role; render(); });
   });
   $('#cart-btn').addEventListener('click', openCart);
@@ -1266,8 +1411,12 @@ async function viewSettings(view) {
     } catch (err) { toast('กู้ข้อมูลไม่สำเร็จ: ' + err.message); }
   });
   $('#wipe').addEventListener('click', async () => {
-    if (!confirm('ลบข้อมูลทั้งหมดออกจากเครื่องนี้? การลบย้อนกลับไม่ได้')) return;
-    if (!confirm('ยืนยันอีกครั้ง: ล้างข้อมูลทั้งหมดจริง ๆ ?')) return;
+    const ok = await confirmModal({
+      title: 'ล้างข้อมูลทั้งหมด?',
+      message: `ลบด้วงทั้งหมด ${beetles.length} ตัว และบันทึก ${logs.length} รายการออกจากเครื่องนี้ การลบย้อนกลับไม่ได้`,
+      danger: true, confirmLabel: 'ล้างข้อมูลทั้งหมด', typedPhrase: 'ลบทั้งหมด',
+    });
+    if (!ok) return;
     await ZDB.clearAll();
     toast('ล้างข้อมูลแล้ว');
     render();
