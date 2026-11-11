@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KWANG</title>
+<meta name="description" content="KWANG — Global Beetle Community &amp; Marketplace. Born from Thailand. Built for Beetle Keepers Worldwide.">
+<meta name="theme-color" content="#f6f8f3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <nav id="nav">
+    <div class="nav-logo">
+      <span class="mark"><i class="ph-fill ph-bug"></i></span>
+      <span class="word">KWANG<small>RAISE • RECORD • BREED • TRADE • CONNECT</small></span>
+    </div>
+    <a href="#/" data-nav="home"><span class="nav-ic"><i class="ph ph-squares-four"></i></span><span class="nav-tx">ภาพรวม</span></a>
+    <a href="#/beetles" data-nav="beetles"><span class="nav-ic"><i class="ph-fill ph-bug"></i></span><span class="nav-tx">ด้วงของฉัน</span></a>
+    <a href="#/add" data-nav="add" class="nav-add"><span class="nav-ic"><i class="ph ph-plus"></i></span><span class="nav-tx">บันทึก</span></a>
+    <a href="#/world" data-nav="world"><span class="nav-ic"><i class="ph-fill ph-globe-hemisphere-east"></i></span><span class="nav-tx">Beetle World</span></a>
+    <a href="#/shop" data-nav="shop" class="nav-shop-item"><span class="nav-ic"><i class="ph ph-storefront"></i></span><span class="nav-tx">ร้านค้า</span></a>
+    <a href="#/settings" data-nav="settings"><span class="nav-ic"><i class="ph ph-gear"></i></span><span class="nav-tx">ตั้งค่า</span></a>
+  </nav>
+  <a href="#/shop" data-nav="shop" id="shop-fab" aria-label="ร้านค้า"><i class="ph-fill ph-storefront"></i></a>
+  <main id="view"></main>
+</div>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
