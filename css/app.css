@@ -82,7 +82,7 @@ button{font-family:inherit}
   text-decoration:none;color:var(--muted);font-size:.7rem;font-weight:500;
   border-bottom:2px solid transparent;padding-bottom:4px;
 }
-#nav a.active{color:var(--green)}
+#nav a.active{color:var(--green-700)}
 #nav .nav-ic{font-size:1.15rem;line-height:1;display:flex}
 #nav a.nav-add{margin-top:-22px}
 #nav a.nav-add .nav-ic{
@@ -180,9 +180,9 @@ button{font-family:inherit}
 .stg-egg{color:var(--text);background:#c3d2c6}
 .stg-l1{color:var(--text);background:#ffe08a}
 .stg-l2{color:var(--text);background:var(--gold)}
-.stg-l3{color:#ffffff;background:var(--gold-600)}
+.stg-l3{color:var(--ink);background:var(--gold-600)}
 .stg-pupa{color:var(--text);background:var(--green-400)}
-.stg-adult{color:#ffffff;background:var(--green)}
+.stg-adult{color:#ffffff;background:var(--green-600)}
 
 .btn{
   text-decoration:none;
@@ -211,7 +211,6 @@ button{font-family:inherit}
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   border-radius:14px;overflow:hidden;
   background:linear-gradient(#141c14,#10160f);
-  border-bottom:2px solid var(--gold);
 }
 .statband .cell{
   padding:14px 6px 12px;text-align:center;cursor:pointer;
@@ -254,6 +253,7 @@ button{font-family:inherit}
 .due-item .code{font-size:.75rem;font-weight:500;color:var(--gold-text);white-space:nowrap}
 .due-item .due{font-size:.72rem;color:var(--danger)}
 .due-item .due.today{color:var(--gold-text)}
+.due-item .due.stale{color:var(--gold-text)}
 
 /* ===== Environment card ===== */
 .env-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -397,6 +397,7 @@ button{font-family:inherit}
 
 /* ===== ฟอร์ม ===== */
 .form-group{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.adv-block[hidden]{display:none}
 .group-label{display:flex;align-items:center;gap:9px}
 .group-label .rule{width:14px;height:2px;background:var(--green);border-radius:2px;flex-shrink:0}
 .group-label .rule.gold{background:var(--gold)}
@@ -451,7 +452,7 @@ form textarea{resize:vertical;min-height:70px}
 
 /* ===== World: leaderboard ===== */
 .trophy-band{
-  border-radius:13px;background:linear-gradient(135deg,#16210f,#10160f);border-bottom:2px solid var(--gold);
+  border-radius:13px;background:linear-gradient(135deg,#16210f,#10160f);
   padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px;
 }
 .trophy-band i{font-size:1.4rem;color:var(--gold)}

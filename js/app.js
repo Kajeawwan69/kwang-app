@@ -126,12 +126,18 @@ function openModal(bodyHtml) {
   bd.id = 'modal-backdrop';
   bd.innerHTML = `<div class="modal">${bodyHtml}</div>`;
   bd.addEventListener('click', e => { if (e.target === bd) closeModal(); });
+  const onKey = e => { if (e.key === 'Escape') closeModal(); };
+  document.addEventListener('keydown', onKey);
+  bd._onKey = onKey;
   document.body.appendChild(bd);
   return bd.querySelector('.modal');
 }
 function closeModal() {
   const bd = document.getElementById('modal-backdrop');
-  if (bd) bd.remove();
+  if (bd) {
+    if (bd._onKey) document.removeEventListener('keydown', bd._onKey);
+    bd.remove();
+  }
 }
 
 function toastAction(msg, actionLabel, onAction, ms = 6000) {
@@ -168,7 +174,9 @@ function confirmModal({ title, message, confirmLabel = 'ยืนยัน', can
         <button type="button" class="btn" id="cm-cancel">${esc(cancelLabel)}</button>
         <button type="button" class="btn ${danger ? 'danger solid' : 'primary'}" id="cm-ok" ${typedPhrase ? 'disabled' : ''}>${esc(confirmLabel)}</button>
       </div>`);
-    const finish = ok => { closeModal(); resolve(ok); };
+    const finish = ok => { document.removeEventListener('keydown', onEsc); closeModal(); resolve(ok); };
+    const onEsc = e => { if (e.key === 'Escape') finish(false); };
+    document.addEventListener('keydown', onEsc);
     modal.querySelector('#cm-cancel').addEventListener('click', () => finish(false));
     modal.querySelector('#cm-ok').addEventListener('click', () => finish(true));
     const phraseInput = modal.querySelector('#cm-phrase');
@@ -200,7 +208,9 @@ function inputModal({ title, label, type = 'text', value = '', placeholder = '',
       </div>`);
     const field = modal.querySelector('#im-field');
     field.focus();
-    const finish = v => { closeModal(); resolve(v); };
+    const finish = v => { document.removeEventListener('keydown', onEsc); closeModal(); resolve(v); };
+    const onEsc = e => { if (e.key === 'Escape') finish(null); };
+    document.addEventListener('keydown', onEsc);
     modal.querySelector('#im-cancel').addEventListener('click', () => finish(null));
     modal.querySelector('#im-ok').addEventListener('click', () => finish(field.value.trim()));
     field.addEventListener('keydown', e => { if (e.key === 'Enter' && !isArea) { e.preventDefault(); finish(field.value.trim()); } });
@@ -328,7 +338,7 @@ function bindRowNav(root) {
   root.querySelectorAll('[data-id]').forEach(el => {
     const go = () => location.hash = '#/beetle/' + el.dataset.id;
     el.addEventListener('click', go);
-    el.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
   });
 }
 
@@ -415,7 +425,7 @@ async function viewHome(view) {
         <div class="due-item" data-id="${b.id}" role="button" tabindex="0">
           <i class="ic ${t.ic}"></i>
           <div class="who">
-            ${t.label}${t.over > 0 ? ` <span class="due">· เกิน ${t.over} วัน</span>` : ''}
+            ${t.label}${t.over > 0 ? (t.over > 30 ? ' <span class="due stale">· เกินมานาน</span>' : ` <span class="due">· เกิน ${t.over} วัน</span>`) : ''}
             <small>ล่าสุด ${fmtDate(t.lastDate)}</small>
           </div>
           <span class="code">${esc(beetleTitle(b))}</span>
@@ -1020,10 +1030,13 @@ async function viewWorld(view) {
   };
 
   const bindAuctionEvents = () => {
-    view.querySelectorAll('.auction-card').forEach(el => el.addEventListener('click', e => {
-      if (e.target.closest('[data-bid]')) return;
-      auctionOpenId = el.dataset.id; drawBody();
-    }));
+    view.querySelectorAll('.auction-card').forEach(el => {
+      const open = () => { auctionOpenId = el.dataset.id; drawBody(); };
+      el.addEventListener('click', e => { if (e.target.closest('[data-bid]')) return; open(); });
+      el.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('[data-bid]')) { e.preventDefault(); open(); }
+      });
+    });
     view.querySelectorAll('[data-bid]').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); bid(btn.dataset.bid); }));
     const back = $('#auction-back'); if (back) back.addEventListener('click', () => { auctionOpenId = null; drawBody(); });
     const bidBtn = $('#auction-bid'); if (bidBtn) bidBtn.addEventListener('click', () => bid(auctionOpenId));
@@ -1132,7 +1145,11 @@ async function viewShop(view) {
           </div>`).join('')}
       </div>` : ''}`;
 
-    view.querySelectorAll('.product-card').forEach(el => el.addEventListener('click', () => openProduct(el.dataset.id)));
+    view.querySelectorAll('.product-card').forEach(el => {
+      const go = () => openProduct(el.dataset.id);
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
     const addBtn = $('#shop-add');
     if (addBtn) addBtn.addEventListener('click', openAddProduct);
   };
