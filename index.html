@@ -16,6 +16,7 @@
   --text:#10160f; --text-2:#23302a; --text-3:#62736a;
   --leaf:#17a75a; --leaf-deep:#0e5c33; --on-leaf:#ffffff; --chitin:#6d4f00;
   --gold:#ffc61a; --ink:#10160f; --pale:#a9bfae;
+  --copper:oklch(76% 0.15 58); --copper-deep:oklch(37% 0.12 45);
   --display:'Kanit',system-ui,sans-serif;
   --body:'Kanit',system-ui,sans-serif;
 }
@@ -49,19 +50,21 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 
 /* hero band — dark premium panel */
 .hero-band{position:relative;overflow:hidden;
-  background:radial-gradient(1100px 480px at 85% -20%, rgba(255,198,26,.14), transparent 60%),
+  background:radial-gradient(1100px 480px at 85% -20%, color-mix(in oklch, var(--copper) 60%, rgba(255,198,26,.14)), transparent 60%),
     linear-gradient(165deg,#141c14,#0c110b 65%)}
 .hero-bg-beetle{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:min(560px,58vw);color:#ffffff;opacity:.045;pointer-events:none}
 .hero-band .topnav{border-bottom:1px solid rgba(255,255,255,.10)}
-.hero-band .brand .mark{background:var(--gold);color:var(--ink)}
+.hero-band .brand .mark{background:color-mix(in oklch, var(--copper) 60%, var(--gold));color:var(--ink)}
 .hero-band .brand b{color:#ffffff}
 .hero-band .navlinks a{color:rgba(255,255,255,.72)}
-.hero-band .navlinks a:hover{color:var(--gold)}
+.hero-band .navlinks a:hover{color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
 .hero-band .btn.ghost{color:#ffffff;border-color:rgba(255,255,255,.28)}
-.hero-band .btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
-.hero-band .btn.primary{background:var(--gold);color:var(--ink)}
-.hero-band .btn.primary:hover{background:#ffd84d}
-.hero-band .hero-copy .leaf-chip{background:rgba(255,198,26,.12);border-color:rgba(255,198,26,.35);color:var(--gold)}
+.hero-band .btn.ghost:hover{border-color:color-mix(in oklch, var(--copper) 60%, var(--gold));color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
+.hero-band .btn.primary{background:color-mix(in oklch, var(--copper) 60%, var(--gold));color:var(--ink)}
+.hero-band .btn.primary:hover{background:color-mix(in oklch, var(--copper) 60%, #ffd84d)}
+.hero-band .hero-copy .leaf-chip{background:color-mix(in oklch, var(--copper) 10.8%, rgba(255,198,26,.12));border-color:color-mix(in oklch, var(--copper) 24%, rgba(255,198,26,.35));color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
+.hero-band .specimen .leaf-chip{color:color-mix(in oklch, var(--copper-deep) 60%, var(--leaf-deep));background:color-mix(in oklch, var(--copper-deep) 7.2%, rgba(23,167,90,.12));border-color:color-mix(in oklch, var(--copper-deep) 18%, rgba(23,167,90,.3))}
+.hero-band .spec-mm{background:color-mix(in oklch, var(--copper-deep) 60%, var(--chitin))}
 
 /* nav */
 .topnav{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;position:relative;z-index:1}
@@ -85,7 +88,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero-copy{flex:1 1 420px;min-width:0}
 .hero .wordmark{
   font-family:var(--display);font-weight:700;font-size:clamp(40px,6vw,64px);line-height:1;
-  color:var(--gold);letter-spacing:.01em;margin-top:20px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  color:color-mix(in oklch, var(--copper) 60%, var(--gold));letter-spacing:.01em;margin-top:20px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
 }
 .hero .wordmark .rom{font-size:clamp(15px,2vw,20px);font-weight:500;color:rgba(255,255,255,.55);letter-spacing:.06em}
 .hero h1{font-size:clamp(24px,3.2vw,34px);font-weight:600;line-height:1.35;letter-spacing:-.005em;margin-top:14px;color:#f2f4ea}
@@ -190,57 +193,57 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 </svg>
 
 <div class="hero-band">
-  <svg class="hero-bg-beetle" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#beetle"/></svg>
-  <div class="wrap">
-    <nav class="topnav">
-      <div class="brand"><span class="mark"><i class="ph-fill ph-bug"></i></span><b>กว่าง<small>KWANG</small></b></div>
-      <div class="navlinks">
-        <a href="#features">ฟีเจอร์</a>
-        <a href="#how">วิธีใช้งาน</a>
-        <a href="#roadmap">แผนต่อไป</a>
-      </div>
-      <a class="btn primary nav-cta" style="padding:10px 20px;font-size:14.5px" href="app.html">เร็วๆ นี้</a>
-    </nav>
-
-    <div class="hero">
-      <div class="hero-copy">
-        <span class="leaf-chip"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold)"></span>เร็วๆ นี้ · ชุมชนคนเลี้ยงด้วง</span>
-        <div class="wordmark">กว่าง<span class="rom">(KWANG)</span></div>
-        <h1>ชุมชนคนเลี้ยงด้วง<br>ครบในที่เดียว
-          <span class="en-tag">One community for every beetle keeper.</span>
-        </h1>
-        <p class="lead">กว่าง (KWANG) คือชุมชนสำหรับคนเลี้ยงด้วงโดยเฉพาะ โดย ZOOTRONIA รวมสมุดบันทึกด้วงส่วนตัว บทความความรู้การเลี้ยง กระดานถาม-ตอบ ตลาดซื้อขายแลกเปลี่ยน และกิจกรรมคนเลี้ยงด้วงไว้ในที่เดียว</p>
-        <p class="lead-en">KWANG is a dedicated community for beetle keepers by ZOOTRONIA, bringing personal record-keeping, care articles, a discussion board, a marketplace, and keeper events together in one place.</p>
-        <div class="hero-ctas">
-          <a class="btn primary" href="app.html">เร็วๆ นี้</a>
-          <a class="btn ghost" href="#features">ดูว่ามีอะไรบ้าง</a>
+    <svg class="hero-bg-beetle" viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#beetle"/></svg>
+    <div class="wrap">
+      <nav class="topnav">
+        <div class="brand"><span class="mark"><i class="ph-fill ph-bug"></i></span><b>กว่าง<small>KWANG</small></b></div>
+        <div class="navlinks">
+          <a href="#features">ฟีเจอร์</a>
+          <a href="#how">วิธีใช้งาน</a>
+          <a href="#roadmap">แผนต่อไป</a>
         </div>
-        <p class="fine" style="font-style:italic">Born from Thailand. Built for Beetle Keepers Worldwide.</p>
-        <p class="fine">ใช้งานฟรี · ไม่ต้องผูกบัตร · ข้อมูลอยู่ในเครื่องของคุณ ใช้งานออฟไลน์ได้</p>
-      </div>
+        <a class="btn primary nav-cta" style="padding:10px 20px;font-size:14.5px" href="app.html">เร็วๆ นี้</a>
+      </nav>
 
-      <div class="specimen">
-        <div class="spec-img">
-          <svg><use href="#beetle"/></svg>
-          <span class="spec-tag">[ภาพตัวอย่าง]</span>
-          <span class="spec-mm">82.4 มม.</span>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:10px">
-          <div>
-            <div style="font-family:var(--display);font-size:19px;font-weight:700">ด้วงกว่างซาง</div>
-            <div style="font-size:13px;color:var(--text-3);font-style:italic">Xylotrupes gideon</div>
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="leaf-chip"><span style="width:6px;height:6px;border-radius:50%;background:color-mix(in oklch, var(--copper) 60%, var(--gold))"></span>เร็วๆ นี้ · ชุมชนคนเลี้ยงด้วง</span>
+          <div class="wordmark">กว่าง<span class="rom">(KWANG)</span></div>
+          <h1>ชุมชนคนเลี้ยงด้วง<br>ครบในที่เดียว
+            <span class="en-tag">One community for every beetle keeper.</span>
+          </h1>
+          <p class="lead">กว่าง (KWANG) คือชุมชนสำหรับคนเลี้ยงด้วงโดยเฉพาะ โดย ZOOTRONIA รวมสมุดบันทึกด้วงส่วนตัว บทความความรู้การเลี้ยง กระดานถาม-ตอบ ตลาดซื้อขายแลกเปลี่ยน และกิจกรรมคนเลี้ยงด้วงไว้ในที่เดียว</p>
+          <p class="lead-en">KWANG is a dedicated community for beetle keepers by ZOOTRONIA, bringing personal record-keeping, care articles, a discussion board, a marketplace, and keeper events together in one place.</p>
+          <div class="hero-ctas">
+            <a class="btn primary" href="app.html">เร็วๆ นี้</a>
+            <a class="btn ghost" href="#features">ดูว่ามีอะไรบ้าง</a>
           </div>
-          <span class="leaf-chip" style="font-size:12px;padding:5px 11px">ตัวเต็มวัย ♂</span>
+          <p class="fine" style="font-style:italic">Born from Thailand. Built for Beetle Keepers Worldwide.</p>
+          <p class="fine">ใช้งานฟรี · ไม่ต้องผูกบัตร · ข้อมูลอยู่ในเครื่องของคุณ ใช้งานออฟไลน์ได้</p>
         </div>
-        <div class="spec-facts">
-          <div><small>สายเลือด</small><b>WF2</b></div>
-          <div><small>น้ำหนักหนอนสูงสุด</small><b>32 ก.</b></div>
-          <div><small>อันดับสายพันธุ์</small><b style="color:var(--chitin)">#7</b></div>
+
+        <div class="specimen">
+          <div class="spec-img">
+            <svg><use href="#beetle"/></svg>
+            <span class="spec-tag">[ภาพตัวอย่าง]</span>
+            <span class="spec-mm">82.4 มม.</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:10px">
+            <div>
+              <div style="font-family:var(--display);font-size:19px;font-weight:700">ด้วงกว่างซาง</div>
+              <div style="font-size:13px;color:var(--text-3);font-style:italic">Xylotrupes gideon</div>
+            </div>
+            <span class="leaf-chip" style="font-size:12px;padding:5px 11px">ตัวเต็มวัย ♂</span>
+          </div>
+          <div class="spec-facts">
+            <div><small>สายเลือด</small><b>WF2</b></div>
+            <div><small>น้ำหนักหนอนสูงสุด</small><b>32 ก.</b></div>
+            <div><small>อันดับสายพันธุ์</small><b style="color:color-mix(in oklch, var(--copper-deep) 60%, var(--chitin))">#7</b></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 <div class="wrap">
   <section id="features">
