@@ -106,12 +106,21 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
   opacity:.25;
 }
 .hero-flyer{
-  position:absolute;width:130px;aspect-ratio:698/945;
-  background:url(img/beetle.png) no-repeat center/contain;
-  filter:drop-shadow(0 0 22px color-mix(in oklch, var(--copper) 55%, var(--gold)));
+  position:absolute;overflow:visible;
+  filter:drop-shadow(0 0 20px color-mix(in oklch, var(--copper) 55%, var(--gold)));
 }
-.hero-flyer.a{animation:fly-a 16s ease-in-out infinite}
-.hero-flyer.b{width:84px;animation:fly-b 12s ease-in-out infinite 1.4s}
+.hero-flyer.a{width:150px;aspect-ratio:8/5;animation:fly-a 16s ease-in-out infinite}
+.hero-flyer.b{width:100px;aspect-ratio:8/5;animation:fly-b 12s ease-in-out infinite 1.4s}
+.bt-part{stroke:rgba(255,198,26,.5);stroke-width:.7;stroke-linejoin:round}
+.bt-gloss{fill:#fff;opacity:.26}
+.bt-abdomen{fill:#1b1210;stroke:rgba(255,198,26,.35);stroke-width:.6}
+.bt-leg{fill:none;stroke:#120c0a;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bt-antenna{fill:none;stroke:#120c0a;stroke-width:1.3;stroke-linecap:round}
+.bt-membrane{fill:rgba(255,224,170,.42);stroke:rgba(255,224,170,.75);stroke-width:.8}
+.bt-vein{fill:none;stroke:rgba(255,224,170,.42);stroke-width:.6}
+.bt-wing{transform-box:fill-box;transform-origin:50% 100%;animation:wing-flap .09s linear infinite alternate}
+@keyframes wing-flap{from{transform:scaleY(1)}to{transform:scaleY(.18)}}
+@media(prefers-reduced-motion:reduce){.bt-wing{animation:none}}
 @keyframes fly-a{
   0%,100%{top:55%;left:55%;transform:rotate(-10deg) scale(.82)}
   20%{top:18%;left:66%;transform:rotate(12deg) scale(1)}
@@ -166,6 +175,20 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="bt-black" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a4650"/><stop offset="0.4" stop-color="#1a181d"/><stop offset="1" stop-color="#060507"/>
+    </linearGradient>
+    <linearGradient id="bt-xylo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e2783a"/><stop offset="0.45" stop-color="#a8401a"/><stop offset="1" stop-color="#4e160a"/>
+    </linearGradient>
+    <linearGradient id="bt-xylo-pro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9a3524"/><stop offset="0.5" stop-color="#5a1410"/><stop offset="1" stop-color="#24070a"/>
+    </linearGradient>
+  </defs>
+</svg>
+
 <div class="hero-band">
     <div class="hero-bg-beetle" aria-hidden="true"></div>
     <div class="wrap">
@@ -190,8 +213,66 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
         </div>
 
         <div class="flyer-stage" aria-hidden="true">
-          <div class="hero-flyer a"></div>
-          <div class="hero-flyer b"></div>
+          <svg class="hero-flyer a" viewBox="-60 -50 160 100">
+            <g>
+              <ellipse cx="-18" cy="0" rx="22" ry="12.09" class="bt-abdomen"/>
+              <g class="bt-wing">
+                <path d="M 2 -4 C -6 -27.5, -22 -45.5, -42 -43.5 C -50 -33.5, -34 -15.75, -10 -4 Z" class="bt-membrane"/>
+                <path d="M 0 -6 C -12 -23.5, -24 -35.5, -38 -40.5 M -4 -6 C -16 -19.5, -28 -25.5, -42 -29.5" class="bt-vein"/>
+              </g>
+              <path d="M 14 -15.5 L 18 -22.5 M -2 -16.5 L -5 -23.5 M -16 -15.5 L -21 -21.5" class="bt-leg"/>
+              <g transform="rotate(30 0 -0.6)">
+                <path d="M 0 -0.6 L -38 -0.6 C -40 -11, -33 -19, -20 -19.5 C -8 -20, -1 -17, 0 -0.6 Z" fill="url(#bt-xylo)" class="bt-part"/>
+                <ellipse cx="-18" cy="-10" rx="12" ry="2.2" class="bt-gloss"/>
+              </g>
+              <g transform="scale(1 -1)">
+                <g class="bt-wing">
+                  <path d="M 2 -4 C -6 -27.5, -22 -45.5, -42 -43.5 C -50 -33.5, -34 -15.75, -10 -4 Z" class="bt-membrane"/>
+                  <path d="M 0 -6 C -12 -23.5, -24 -35.5, -38 -40.5 M -4 -6 C -16 -19.5, -28 -25.5, -42 -29.5" class="bt-vein"/>
+                </g>
+                <path d="M 14 -15.5 L 18 -22.5 M -2 -16.5 L -5 -23.5 M -16 -15.5 L -21 -21.5" class="bt-leg"/>
+                <g transform="rotate(30 0 -0.6)">
+                  <path d="M 0 -0.6 L -38 -0.6 C -40 -11, -33 -19, -20 -19.5 C -8 -20, -1 -17, 0 -0.6 Z" fill="url(#bt-xylo)" class="bt-part"/>
+                  <ellipse cx="-18" cy="-10" rx="12" ry="2.2" class="bt-gloss"/>
+                </g>
+              </g>
+              <path d="M 0 -16 C 4 -20, 13 -20.5, 18 -16 C 23 -11, 24 -5, 24 0 C 24 5, 23 11, 18 16 C 13 20.5, 4 20, 0 16 Z" fill="url(#bt-xylo-pro)" class="bt-part"/>
+              <ellipse cx="11" cy="-6.5" rx="5.5" ry="1.8" class="bt-gloss"/>
+              <path d="M 22 -6 C 26 -7, 28 -5, 28 -3 L 28 3 C 28 5, 26 7, 22 6 Z" fill="url(#bt-xylo-pro)" class="bt-part"/>
+              <path d="M 30 -5 L 34 -10 L 38 -11 M 30 5 L 34 10 L 38 11" class="bt-antenna"/>
+              <path d="M 10 -7 C 22 -6.5, 34 -4.5, 44 -2.6 L 50 -7 L 48 -1.4 L 50 0 L 48 1.4 L 50 7 L 44 2.6 C 34 4.5, 22 6.5, 10 7 Z M 26 -2.4 C 31 -2.4, 35 -2, 38 -1.4 L 42 -4 L 40.5 0 L 42 4 L 38 1.4 C 35 2, 31 2.4, 26 2.4 Z" fill="url(#bt-xylo-pro)" class="bt-part" fill-rule="nonzero"/>
+            </g>
+          </svg>
+          <svg class="hero-flyer b" viewBox="-60 -50 160 100">
+            <g>
+              <ellipse cx="-18" cy="0" rx="22" ry="11.16" class="bt-abdomen"/>
+              <g class="bt-wing">
+                <path d="M 2 -4 C -6 -26, -22 -44, -42 -42 C -50 -32, -34 -15, -10 -4 Z" class="bt-membrane"/>
+                <path d="M 0 -6 C -12 -22, -24 -34, -38 -39 M -4 -6 C -16 -18, -28 -24, -42 -28" class="bt-vein"/>
+              </g>
+              <path d="M 14 -14 L 18 -21 M -2 -15 L -5 -22 M -16 -14 L -21 -20" class="bt-leg"/>
+              <g transform="rotate(30 0 -0.6)">
+                <path d="M 0 -0.6 L -44 -0.6 C -46 -10, -40 -17.5, -27 -18 C -12 -18.5, -2 -16.5, 0 -0.6 Z" fill="url(#bt-black)" class="bt-part"/>
+                <ellipse cx="-22" cy="-9" rx="13" ry="2.2" class="bt-gloss"/>
+              </g>
+              <g transform="scale(1 -1)">
+                <g class="bt-wing">
+                  <path d="M 2 -4 C -6 -26, -22 -44, -42 -42 C -50 -32, -34 -15, -10 -4 Z" class="bt-membrane"/>
+                  <path d="M 0 -6 C -12 -22, -24 -34, -38 -39 M -4 -6 C -16 -18, -28 -24, -42 -28" class="bt-vein"/>
+                </g>
+                <path d="M 14 -14 L 18 -21 M -2 -15 L -5 -22 M -16 -14 L -21 -20" class="bt-leg"/>
+                <g transform="rotate(30 0 -0.6)">
+                  <path d="M 0 -0.6 L -44 -0.6 C -46 -10, -40 -17.5, -27 -18 C -12 -18.5, -2 -16.5, 0 -0.6 Z" fill="url(#bt-black)" class="bt-part"/>
+                  <ellipse cx="-22" cy="-9" rx="13" ry="2.2" class="bt-gloss"/>
+                </g>
+              </g>
+              <path d="M 0 -15 L 3 -18 L 13 -18.5 L 16 -15 L 19 -17 L 22 -12.5 L 22 12.5 L 19 17 L 16 15 L 13 18.5 L 3 18 L 0 15 Z" fill="url(#bt-black)" class="bt-part"/>
+              <ellipse cx="11" cy="-6" rx="5.5" ry="1.8" class="bt-gloss"/>
+              <path d="M 22 -14 L 31 -15 L 35 -11 L 34 -6 L 34 6 L 35 11 L 31 15 L 22 14 Z" fill="url(#bt-black)" class="bt-part"/>
+              <path d="M 30 -5 L 34 -10 L 38 -11 M 30 5 L 34 10 L 38 11" class="bt-antenna"/>
+              <path d="M 33 -7 C 41 -11, 49 -19, 59 -22 L 60 -26 L 62 -22 C 68 -23, 72 -22, 76 -19 L 80 -22 L 78 -17 L 81 -14 L 76 -15 C 72 -18, 67 -18.5, 63 -17 L 64 -14 L 60 -16 C 53 -13, 46 -8, 37 -3 Z M 33 7 C 41 11, 49 19, 59 22 L 60 26 L 62 22 C 68 23, 72 22, 76 19 L 80 22 L 78 17 L 81 14 L 76 15 C 72 18, 67 18.5, 63 17 L 64 14 L 60 16 C 53 13, 46 8, 37 3 Z" fill="url(#bt-black)" class="bt-part" fill-rule="nonzero"/>
+            </g>
+          </svg>
           <span class="firefly" style="top:68%;left:22%;animation-delay:.2s"></span>
           <span class="firefly" style="top:78%;left:58%;animation-delay:1.1s"></span>
           <span class="firefly" style="top:62%;left:74%;animation-delay:1.9s"></span>
