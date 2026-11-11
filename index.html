@@ -188,9 +188,15 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
 .foot a,.foot span{font-size:13.5px;color:var(--text-3)}
 .foot .brand{flex-grow:1}
 .foot .brand small{display:block;font-size:11px;color:var(--text-3);font-weight:400}
-.social-links{display:flex;gap:16px}
-.social-links a{font-size:18px;color:var(--text-3)}
-.social-links a:hover{color:var(--leaf-deep)}
+.social-links{display:flex;gap:10px;flex-wrap:wrap}
+.social-links a{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:100px;border:1px solid var(--border);
+  font-size:13px;color:var(--text-2);font-weight:500;
+}
+.social-links a i{font-size:16px;color:var(--text-3)}
+.social-links a:hover{border-color:var(--leaf);color:var(--leaf-deep)}
+.social-links a:hover i{color:var(--leaf-deep)}
 </style>
 </head>
 <body>
@@ -343,10 +349,10 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
       <span>กฎชุมชน</span>
       <span>ความเป็นส่วนตัว</span>
       <div class="social-links">
-        <a href="https://www.facebook.com/PhuBaoKhaiDuangBeetles" target="_blank" rel="noopener" aria-label="Facebook"><i class="ph-fill ph-facebook-logo"></i></a>
-        <a href="https://www.tiktok.com/@twinbeetle" target="_blank" rel="noopener" aria-label="TikTok"><i class="ph-fill ph-tiktok-logo"></i></a>
-        <a href="https://www.instagram.com/twin.beetle" target="_blank" rel="noopener" aria-label="Instagram"><i class="ph-fill ph-instagram-logo"></i></a>
-        <a href="https://www.youtube.com/@PhuBaoKhaiDuangBeetles" target="_blank" rel="noopener" aria-label="YouTube"><i class="ph-fill ph-youtube-logo"></i></a>
+        <a href="https://www.facebook.com/PhuBaoKhaiDuangBeetles" target="_blank" rel="noopener"><i class="ph-fill ph-facebook-logo"></i>PhuBaoKhaiDuangBeetles</a>
+        <a href="https://www.tiktok.com/@twinbeetle" target="_blank" rel="noopener"><i class="ph-fill ph-tiktok-logo"></i>@twinbeetle</a>
+        <a href="https://www.instagram.com/twin.beetle" target="_blank" rel="noopener"><i class="ph-fill ph-instagram-logo"></i>@twin.beetle</a>
+        <a href="https://www.youtube.com/@PhuBaoKhaiDuangBeetles" target="_blank" rel="noopener"><i class="ph-fill ph-youtube-logo"></i>@PhuBaoKhaiDuangBeetles</a>
       </div>
       <span>© 2569 ZOOTRONIA</span>
     </div>
