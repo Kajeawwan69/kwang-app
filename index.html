@@ -99,9 +99,26 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero .lead-en{font-size:14px;color:rgba(255,255,255,.68);margin-top:10px;max-width:540px;font-style:italic}
 .hero-ctas{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
 .hero .fine{font-size:13.5px;color:rgba(255,255,255,.68);margin-top:16px}
-.specimen{width:min(430px,100%);flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
-.spec-img{position:relative;height:250px;border-radius:16px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.spec-img img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.flyer-stage{width:min(430px,100%);flex-shrink:0;position:relative;height:360px;overflow:hidden}
+.flyer-stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(220px 220px at 65% 35%, color-mix(in oklch, var(--copper) 55%, var(--gold)), transparent 70%);
+  opacity:.25;
+}
+.hero-flyer{
+  position:absolute;width:130px;aspect-ratio:698/945;
+  background:url(img/beetle.png) no-repeat center/contain;
+  filter:drop-shadow(0 0 22px color-mix(in oklch, var(--copper) 55%, var(--gold)));
+  animation:fly 16s ease-in-out infinite;
+}
+@keyframes fly{
+  0%,100%{top:55%;left:55%;transform:rotate(-10deg) scale(.82)}
+  20%{top:18%;left:66%;transform:rotate(12deg) scale(1)}
+  45%{top:8%;left:38%;transform:rotate(-6deg) scale(.9)}
+  65%{top:38%;left:16%;transform:rotate(16deg) scale(1.05)}
+  85%{top:52%;left:36%;transform:rotate(-12deg) scale(.88)}
+}
+@media(prefers-reduced-motion:reduce){.hero-flyer{animation:none;top:30%;left:58%}}
 /* sections */
 section{padding:64px 0 8px}
 
@@ -147,25 +164,16 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
           <h1>ชุมชนคนเลี้ยงด้วง<br>ครบในที่เดียว
             <span class="en-tag">One community for every beetle keeper.</span>
           </h1>
-          <p class="lead">LIANGDUANG คือพื้นที่สำหรับคนเลี้ยงด้วงโดยเฉพาะ โดย ZOOTRONIA ชุมชนที่รวมคนรักด้วงไว้ในที่เดียว</p>
-          <p class="lead-en">LIANGDUANG is a dedicated space for beetle keepers by ZOOTRONIA — one community for everyone who loves beetles.</p>
+          <p class="lead">LIANGDUANG คือพื้นที่สำหรับคนเลี้ยงด้วงโดยเฉพาะ โดย PHUBAOKHAIDUANGBEETLES ชุมชนที่รวมคนรักด้วงไว้ในที่เดียว</p>
+          <p class="lead-en">LIANGDUANG is a dedicated space for beetle keepers by PHUBAOKHAIDUANGBEETLES — one community for everyone who loves beetles.</p>
           <div class="hero-ctas">
             <a class="btn primary" href="app.html">เร็วๆ นี้</a>
           </div>
           <p class="fine" style="font-style:italic">Born from Thailand. Built for Beetle Keepers Worldwide.</p>
         </div>
 
-        <div class="specimen">
-          <div class="spec-img">
-            <img src="img/beetle.png" alt="ด้วงกว่างซาง Xylotrupes gideon">
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:10px">
-            <div>
-              <div style="font-family:var(--display);font-size:19px;font-weight:700">ด้วงกว่างซาง</div>
-              <div style="font-size:13px;color:var(--text-3);font-style:italic">Xylotrupes gideon</div>
-            </div>
-            <span class="leaf-chip" style="font-size:12px;padding:5px 11px">ตัวเต็มวัย ♂</span>
-          </div>
+        <div class="flyer-stage" aria-hidden="true">
+          <div class="hero-flyer"></div>
         </div>
       </div>
     </div>
