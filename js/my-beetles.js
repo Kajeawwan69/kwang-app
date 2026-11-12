@@ -159,19 +159,23 @@ function inputDialog({ title, label, type = 'text', value = '', placeholder = ''
   });
 }
 
-/* ---------- state + sub-nav ---------- */
-const state = { view: 'overview', detailId: null, editId: null };
+/* ---------- state + router ---------- */
+const state = { detailId: null, editId: null };
 
-function setSubnav(view) {
-  document.querySelectorAll('.mb-subtab').forEach(t => t.classList.toggle('active', t.dataset.mbview === view));
+function switchToMyBeetlesTab() {
+  const tabBtn = document.querySelector('.tab[data-tab="mybeetles"]');
+  if (tabBtn && !tabBtn.classList.contains('active')) tabBtn.click();
 }
 
+/* เรียกจาก Overview เพื่อข้ามไปแท็บ "ด้วงของฉัน" พร้อมเปิดรายการ/ตัวที่เลือก */
+function goToBeetle(id) { switchToMyBeetlesTab(); go('detail', id); }
+function goToList() { switchToMyBeetlesTab(); go('list'); }
+function goAdd() { switchToMyBeetlesTab(); go('form'); }
+
 async function go(view, arg) {
-  state.view = view;
   if (view === 'detail') state.detailId = arg;
   if (view === 'form') state.editId = arg || null;
-  setSubnav(view === 'overview' || view === 'list' ? view : '');
-  const root = $('#mb-root');
+  const root = view === 'overview' ? $('#overview-root') : $('#mybeetles-root');
   root.innerHTML = '<div class="loading">กำลังโหลด...</div>';
   try {
     if (view === 'overview') await renderOverview(root);
@@ -181,7 +185,6 @@ async function go(view, arg) {
   } catch (err) {
     root.innerHTML = `<div class="empty">เกิดข้อผิดพลาด: ${esc(err.message)}</div>`;
   }
-  root.scrollIntoView({ block: 'nearest' });
 }
 
 /* ---------- overview ---------- */
@@ -226,9 +229,9 @@ async function renderOverview(root) {
       : `<div class="mb-rows">${recent.map(beetleRowHTML).join('')}</div>`}`;
 
   root.querySelectorAll('.mb-due-item, .mb-row').forEach(el =>
-    el.addEventListener('click', () => go('detail', el.dataset.id)));
+    el.addEventListener('click', () => goToBeetle(el.dataset.id)));
   const seeAll = $('#mb-see-all');
-  if (seeAll) seeAll.addEventListener('click', () => go('list'));
+  if (seeAll) seeAll.addEventListener('click', goToList);
 }
 
 /* ---------- list ---------- */
@@ -489,8 +492,8 @@ async function renderForm(root, id) {
 }
 
 /* ---------- boot ---------- */
-document.querySelectorAll('.mb-subtab').forEach(t => t.addEventListener('click', () => go(t.dataset.mbview)));
-$('#mb-fab').addEventListener('click', () => go('form'));
+$('#mb-fab').addEventListener('click', goAdd);
 go('overview');
+go('list');
 
 })();

@@ -789,9 +789,10 @@ async function handleStatSubmit(e) {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  ['ranking', 'feed', 'mybeetles', 'auction', 'care'].forEach(name => {
+  ['overview', 'ranking', 'feed', 'mybeetles', 'auction', 'care'].forEach(name => {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });
+  $('#mb-fab').classList.toggle('hidden', tab !== 'overview' && tab !== 'mybeetles');
   if (tab === 'ranking' && !worldLoaded) {
     loadWorldStats();
   }

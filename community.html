@@ -126,16 +126,12 @@ main{padding:24px 0 64px}
 .rank-pos.silver{background:#e4e9e0;color:var(--text-2)}
 .rank-pos.bronze{background:color-mix(in oklch, var(--copper) 45%, #fff3c4);color:var(--copper-deep)}
 /* ด้วงของฉัน */
-#pane-mybeetles{position:relative}
-.mb-subnav{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border)}
-.mb-subtab{font:inherit;font-size:14px;font-weight:600;color:var(--text-3);background:none;border:none;
-  padding:8px 4px;margin-right:22px;cursor:pointer;border-bottom:2px solid transparent}
-.mb-subtab.active{color:var(--leaf-deep);border-bottom-color:var(--leaf-deep)}
 .mb-fab{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;
   background:linear-gradient(135deg,#1a2415,#10160f);color:var(--gold);border:2px solid var(--surface);
   box-shadow:0 8px 20px rgba(16,22,15,.26);display:flex;align-items:center;justify-content:center;
   font-size:24px;cursor:pointer;z-index:20}
 .mb-fab:hover{filter:brightness(1.15)}
+.mb-fab.hidden{display:none}
 
 .mb-stat-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
 @media(min-width:560px){.mb-stat-tiles{grid-template-columns:repeat(4,1fr)}}
@@ -301,7 +297,8 @@ main{padding:24px 0 64px}
   <aside class="world-side">
     <h1 class="world-title"><i class="ph-fill ph-globe-hemisphere-west"></i>Beetle World</h1>
     <div class="tabs" id="tabs">
-      <button type="button" class="tab active" data-tab="ranking"><i class="ph-fill ph-trophy"></i>Ranking</button>
+      <button type="button" class="tab active" data-tab="overview"><i class="ph-fill ph-squares-four"></i>ภาพรวม</button>
+      <button type="button" class="tab" data-tab="ranking"><i class="ph-fill ph-trophy"></i>Ranking</button>
       <button type="button" class="tab" data-tab="feed"><i class="ph-fill ph-image"></i>ฟีด</button>
       <button type="button" class="tab" data-tab="mybeetles"><i class="ph-fill ph-bug"></i>ด้วงของฉัน</button>
       <button type="button" class="tab" data-tab="auction"><i class="ph-fill ph-gavel"></i>ตลาดประมูล</button>
@@ -310,7 +307,11 @@ main{padding:24px 0 64px}
   </aside>
 
   <div class="world-content">
-    <main id="pane-ranking">
+    <main id="pane-overview">
+      <div id="overview-root"></div>
+    </main>
+
+    <main id="pane-ranking" style="display:none">
       <div id="stats-form-slot"></div>
       <div class="stats-filters">
         <select id="stats-category-filter">
@@ -334,12 +335,7 @@ main{padding:24px 0 64px}
     </main>
 
     <main id="pane-mybeetles" style="display:none">
-      <div class="mb-subnav">
-        <button type="button" class="mb-subtab active" data-mbview="overview">ภาพรวม</button>
-        <button type="button" class="mb-subtab" data-mbview="list">ด้วงของฉัน</button>
-      </div>
-      <div id="mb-root"></div>
-      <button type="button" class="mb-fab" id="mb-fab" title="บันทึกด้วงตัวใหม่"><i class="ph ph-plus"></i></button>
+      <div id="mybeetles-root"></div>
     </main>
 
     <main id="pane-auction" style="display:none">
@@ -351,6 +347,8 @@ main{padding:24px 0 64px}
     </main>
   </div>
 </div>
+
+<button type="button" class="mb-fab" id="mb-fab" title="บันทึกด้วงตัวใหม่"><i class="ph ph-plus"></i></button>
 
 <div id="modal-slot"></div>
 
