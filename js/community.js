@@ -1,0 +1,524 @@
+/* LIANGDUANG Community — MVP (โปรไฟล์ + โพสต์รูปภาพ + Like + Comment) */
+(() => {
+'use strict';
+
+const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const timeAgo = iso => {
+  const diff = Math.max(0, Date.now() - new Date(iso).getTime());
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'เมื่อสักครู่';
+  if (m < 60) return `${m} นาทีที่แล้ว`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} ชม.ที่แล้ว`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d} วันที่แล้ว`;
+  return new Date(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+};
+
+async function resizeImage(file, maxDim = 1600, quality = 0.82) {
+  let source, width, height;
+  try {
+    source = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    width = source.width; height = source.height;
+  } catch {
+    source = await new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = rej;
+      img.src = URL.createObjectURL(file);
+    });
+    width = source.naturalWidth; height = source.naturalHeight;
+  }
+  const scale = Math.min(1, maxDim / Math.max(width, height));
+  const outW = Math.max(1, Math.round(width * scale));
+  const outH = Math.max(1, Math.round(height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = outW; canvas.height = outH;
+  canvas.getContext('2d').drawImage(source, 0, 0, outW, outH);
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+  return blob || file;
+}
+
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const state = {
+  user: null,
+  profile: null,
+  posts: [],
+  likeCounts: new Map(),   // postId -> number
+  myLikes: new Set(),      // postIds liked by current user
+  comments: new Map(),     // postId -> array of {body, created_at, profiles}
+  composerFile: null,
+  authMode: 'login',       // 'login' | 'signup'
+};
+
+/* ---------- auth ---------- */
+
+async function ensureProfile(user) {
+  const { data: existing } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+  if (existing) return;
+  const meta = user.user_metadata || {};
+  const base = (meta.full_name || meta.name || (user.email || 'user').split('@')[0])
+    .toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 20) || 'user';
+  let username = base;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { error } = await sb.from('profiles').insert({
+      id: user.id, username, display_name: meta.full_name || meta.name || username, avatar_url: meta.avatar_url || meta.picture || null,
+    });
+    if (!error) return;
+    if (!String(error.message).includes('duplicate')) throw error;
+    username = base + Math.floor(Math.random() * 10000);
+  }
+}
+
+async function refreshSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  state.user = session ? session.user : null;
+  if (state.user) {
+    let { data } = await sb.from('profiles').select('*').eq('id', state.user.id).maybeSingle();
+    if (!data) {
+      await ensureProfile(state.user);
+      ({ data } = await sb.from('profiles').select('*').eq('id', state.user.id).maybeSingle());
+    }
+    state.profile = data || null;
+  } else {
+    state.profile = null;
+  }
+  renderAuthSlot();
+  renderComposer();
+}
+
+sb.auth.onAuthStateChange(() => refreshSession());
+
+async function handleLogin(email, password) {
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+
+async function handleSignup(email, password, username) {
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error) throw error;
+  if (!data.session) throw new Error('สมัครสำเร็จ แต่ยังไม่มี session — ถ้าโปรเจกต์เปิด "Confirm email" ไว้ ให้ไปปิดในหน้า Auth settings ก่อนทดสอบ');
+  const { error: profErr } = await sb.from('profiles').insert({ id: data.user.id, username, display_name: username });
+  if (profErr) throw new Error(profErr.message.includes('duplicate') ? 'ชื่อผู้ใช้นี้มีคนใช้แล้ว' : profErr.message);
+}
+
+async function handleGoogleLogin() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + window.location.pathname },
+  });
+  if (error) throw error;
+}
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  toast('ออกจากระบบแล้ว');
+}
+
+/* ---------- feed ---------- */
+
+async function loadFeed() {
+  const feedEl = $('#feed');
+  const { data: posts, error } = await sb
+    .from('posts')
+    .select('id,caption,image_url,created_at,author_id,profiles(username,display_name)')
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error) { feedEl.innerHTML = `<div class="empty">โหลดฟีดไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
+  state.posts = posts || [];
+  if (!state.posts.length) {
+    state.likeCounts = new Map(); state.myLikes = new Set(); state.comments = new Map();
+    renderFeed();
+    return;
+  }
+  const ids = state.posts.map(p => p.id);
+  const [{ data: likes }, { data: comments }] = await Promise.all([
+    sb.from('post_likes').select('post_id,user_id').in('post_id', ids),
+    sb.from('post_comments').select('id,post_id,body,created_at,profiles(username,display_name)').in('post_id', ids).order('created_at', { ascending: true }),
+  ]);
+  state.likeCounts = new Map();
+  state.myLikes = new Set();
+  (likes || []).forEach(l => {
+    state.likeCounts.set(l.post_id, (state.likeCounts.get(l.post_id) || 0) + 1);
+    if (state.user && l.user_id === state.user.id) state.myLikes.add(l.post_id);
+  });
+  state.comments = new Map();
+  (comments || []).forEach(c => {
+    if (!state.comments.has(c.post_id)) state.comments.set(c.post_id, []);
+    state.comments.get(c.post_id).push(c);
+  });
+  renderFeed();
+}
+
+function authorName(profiles) {
+  return (profiles && (profiles.display_name || profiles.username)) || 'ผู้ใช้ไม่ทราบชื่อ';
+}
+
+function renderFeed() {
+  const feedEl = $('#feed');
+  if (!state.posts.length) { feedEl.innerHTML = '<div class="empty">ยังไม่มีโพสต์ — เป็นคนแรกที่แชร์ด้วงของคุณสิ!</div>'; return; }
+  feedEl.innerHTML = state.posts.map(postCard).join('');
+  state.posts.forEach(p => {
+    $(`#like-${p.id}`).addEventListener('click', () => toggleLike(p.id));
+    const form = $(`#cf-${p.id}`);
+    if (form) form.addEventListener('submit', e => {
+      e.preventDefault();
+      const input = form.querySelector('input');
+      const body = input.value.trim();
+      if (!body) return;
+      submitComment(p.id, body);
+      input.value = '';
+    });
+  });
+}
+
+function postCard(p) {
+  const liked = state.myLikes.has(p.id);
+  const likeCount = state.likeCounts.get(p.id) || 0;
+  const comments = state.comments.get(p.id) || [];
+  const name = authorName(p.profiles);
+  const loggedIn = !!state.user;
+  return `
+  <article class="post">
+    <div class="post-head">
+      <div class="avatar">${esc(name.slice(0, 1).toUpperCase())}</div>
+      <div><div class="name">${esc(name)}</div><div class="time">${timeAgo(p.created_at)}</div></div>
+    </div>
+    <img class="post-image" src="${esc(p.image_url)}" alt="" loading="lazy">
+    ${p.caption ? `<p class="caption">${esc(p.caption)}</p>` : ''}
+    <div class="actions">
+      <button type="button" class="action ${liked ? 'liked' : ''}" id="like-${p.id}" ${loggedIn ? '' : 'disabled title="เข้าสู่ระบบก่อนเพื่อกดไลค์"'}>
+        <i class="ph-fill ph-heart"></i>${likeCount || ''} ไลค์
+      </button>
+      <span class="action" style="cursor:default"><i class="ph-fill ph-chat-circle"></i>${comments.length || ''} คอมเมนต์</span>
+    </div>
+    <div class="comments">
+      ${comments.map(c => `<div class="comment"><b>${esc(authorName(c.profiles))}</b> ${esc(c.body)}</div>`).join('')}
+      ${loggedIn
+        ? `<form class="comment-form" id="cf-${p.id}"><input type="text" maxlength="400" placeholder="เขียนคอมเมนต์..."><button type="submit">ส่ง</button></form>`
+        : `<div class="comment" style="color:var(--text-3)">เข้าสู่ระบบเพื่อคอมเมนต์</div>`}
+    </div>
+  </article>`;
+}
+
+async function toggleLike(postId) {
+  if (!state.user) return;
+  const liked = state.myLikes.has(postId);
+  if (liked) {
+    await sb.from('post_likes').delete().eq('post_id', postId).eq('user_id', state.user.id);
+    state.myLikes.delete(postId);
+    state.likeCounts.set(postId, (state.likeCounts.get(postId) || 1) - 1);
+  } else {
+    await sb.from('post_likes').insert({ post_id: postId, user_id: state.user.id });
+    state.myLikes.add(postId);
+    state.likeCounts.set(postId, (state.likeCounts.get(postId) || 0) + 1);
+  }
+  renderFeed();
+}
+
+async function submitComment(postId, body) {
+  const { data, error } = await sb.from('post_comments')
+    .insert({ post_id: postId, author_id: state.user.id, body })
+    .select('id,post_id,body,created_at,profiles(username,display_name)')
+    .single();
+  if (error) { toast('คอมเมนต์ไม่สำเร็จ'); return; }
+  if (!state.comments.has(postId)) state.comments.set(postId, []);
+  state.comments.get(postId).push(data);
+  renderFeed();
+}
+
+/* ---------- composer ---------- */
+
+function renderComposer() {
+  const slot = $('#composer-slot');
+  if (!state.user || !state.profile) {
+    slot.innerHTML = `<div class="login-prompt">เข้าสู่ระบบเพื่อโพสต์รูปด้วงของคุณให้ชุมชนเห็น
+      <div><button type="button" class="btn primary" id="prompt-login">เข้าสู่ระบบ / สมัครสมาชิก</button></div>
+    </div>`;
+    $('#prompt-login').addEventListener('click', () => openAuthModal('login'));
+    return;
+  }
+  slot.innerHTML = `
+  <form class="composer" id="composer-form">
+    <textarea id="composer-caption" maxlength="500" placeholder="แชร์เรื่องด้วงของคุณ..."></textarea>
+    <img class="preview" id="composer-preview" alt="">
+    <div class="row">
+      <label class="file-btn"><i class="ph-fill ph-image"></i>แนบรูป<input type="file" id="composer-file" accept="image/*"></label>
+      <button type="submit" class="btn primary" id="composer-submit" style="margin-left:auto" disabled>โพสต์</button>
+    </div>
+  </form>`;
+  const fileInput = $('#composer-file');
+  const preview = $('#composer-preview');
+  const submitBtn = $('#composer-submit');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    state.composerFile = file || null;
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      submitBtn.disabled = false;
+    } else {
+      preview.style.display = 'none';
+      submitBtn.disabled = true;
+    }
+  });
+  $('#composer-form').addEventListener('submit', handlePostSubmit);
+}
+
+async function handlePostSubmit(e) {
+  e.preventDefault();
+  const file = state.composerFile;
+  if (!file) return;
+  const caption = $('#composer-caption').value.trim();
+  const submitBtn = $('#composer-submit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'กำลังโพสต์...';
+  try {
+    const resized = await resizeImage(file);
+    const path = `${state.user.id}/${Date.now()}.jpg`;
+    const { error: upErr } = await sb.storage.from('post-images').upload(path, resized, {
+      contentType: 'image/jpeg', cacheControl: '31536000', upsert: false,
+    });
+    if (upErr) throw upErr;
+    const { data: pub } = sb.storage.from('post-images').getPublicUrl(path);
+    const { error: insErr } = await sb.from('posts').insert({
+      author_id: state.user.id, caption: caption || null, image_url: pub.publicUrl,
+    });
+    if (insErr) throw insErr;
+    state.composerFile = null;
+    renderComposer();
+    toast('โพสต์แล้ว!');
+    loadFeed();
+  } catch (err) {
+    toast('โพสต์ไม่สำเร็จ: ' + err.message);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'โพสต์';
+  }
+}
+
+/* ---------- auth UI ---------- */
+
+function renderAuthSlot() {
+  const slot = $('#auth-slot');
+  if (state.user && state.profile) {
+    slot.innerHTML = `
+      <span class="user-chip"><i class="ph-fill ph-user-circle"></i>${esc(state.profile.display_name || state.profile.username)}</span>
+      <button type="button" class="btn ghost" id="logout-btn">ออกจากระบบ</button>`;
+    $('#logout-btn').addEventListener('click', handleLogout);
+  } else {
+    slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
+    $('#login-btn').addEventListener('click', () => openAuthModal('login'));
+  }
+}
+
+function openAuthModal(mode) {
+  state.authMode = mode;
+  renderModal();
+}
+function closeModal() { $('#modal-slot').innerHTML = ''; }
+
+function renderModal() {
+  const isLogin = state.authMode === 'login';
+  $('#modal-slot').innerHTML = `
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <button type="button" class="close" id="modal-close">&times;</button>
+      <h3>${isLogin ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</h3>
+      <p class="sub">${isLogin ? 'เข้าสู่ระบบเพื่อโพสต์ ไลค์ และคอมเมนต์' : 'สร้างบัญชีเพื่อร่วมชุมชน LIANGDUANG'}</p>
+      <button type="button" class="btn ghost google-btn" id="google-btn">
+        <img src="https://www.google.com/favicon.ico" alt="" width="16" height="16">เข้าสู่ระบบด้วย Google
+      </button>
+      <div class="divider"><span>หรือใช้อีเมล</span></div>
+      <form id="auth-form">
+        ${isLogin ? '' : `<label for="f-username">ชื่อผู้ใช้</label><input id="f-username" required maxlength="24">`}
+        <label for="f-email">อีเมล</label><input id="f-email" type="email" required>
+        <label for="f-password">รหัสผ่าน</label><input id="f-password" type="password" required minlength="6">
+        <div class="err" id="auth-err"></div>
+        <div class="modal-actions">
+          <button type="submit" class="btn primary" id="auth-submit">${isLogin ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</button>
+        </div>
+      </form>
+      <div class="switch">
+        ${isLogin ? 'ยังไม่มีบัญชี?' : 'มีบัญชีอยู่แล้ว?'}
+        <button type="button" id="switch-mode">${isLogin ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ'}</button>
+      </div>
+    </div>
+  </div>`;
+  $('#modal-close').addEventListener('click', closeModal);
+  $('#modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+  $('#switch-mode').addEventListener('click', () => openAuthModal(isLogin ? 'signup' : 'login'));
+  $('#google-btn').addEventListener('click', async () => {
+    try { await handleGoogleLogin(); }
+    catch (err) { $('#auth-err').textContent = err.message || 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ'; }
+  });
+  $('#auth-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const submitBtn = $('#auth-submit');
+    const errEl = $('#auth-err');
+    errEl.textContent = '';
+    submitBtn.disabled = true;
+    const email = $('#f-email').value.trim();
+    const password = $('#f-password').value;
+    try {
+      if (isLogin) {
+        await handleLogin(email, password);
+      } else {
+        const username = $('#f-username').value.trim();
+        await handleSignup(email, password, username);
+      }
+      closeModal();
+      toast(isLogin ? 'เข้าสู่ระบบแล้ว' : 'สมัครสมาชิกสำเร็จ');
+      loadFeed();
+    } catch (err) {
+      errEl.textContent = err.message || 'เกิดข้อผิดพลาด';
+      submitBtn.disabled = false;
+    }
+  });
+}
+
+/* ---------- Beetle World stats ---------- */
+
+let worldStats = [];
+let worldLoaded = false;
+
+async function loadWorldStats() {
+  const board = $('#stats-board');
+  const { data, error } = await sb
+    .from('beetle_stats_ranked')
+    .select('*')
+    .order('species', { ascending: true })
+    .order('rank_by_length', { ascending: true });
+  if (error) { board.innerHTML = `<div class="empty">โหลดสถิติไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
+  worldStats = data || [];
+  worldLoaded = true;
+  renderWorldBoard();
+}
+
+function renderWorldBoard(filter = '') {
+  const board = $('#stats-board');
+  const q = filter.trim().toLowerCase();
+  const groups = new Map();
+  worldStats.forEach(s => {
+    const key = s.species + '|' + (s.species_th || '');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  });
+  let entries = [...groups.entries()];
+  if (q) entries = entries.filter(([key]) => key.toLowerCase().includes(q));
+  if (!entries.length) { board.innerHTML = '<div class="empty">ไม่พบสายพันธุ์ที่ค้นหา หรือยังไม่มีสถิติ — ส่งสถิติของคุณเป็นรายการแรกสิ!</div>'; return; }
+  board.innerHTML = entries.map(([key, rows]) => {
+    const [species, speciesTh] = key.split('|');
+    return `
+    <div class="species-group">
+      <h3>${esc(species)}</h3>
+      ${speciesTh ? `<p class="th-name">${esc(speciesTh)}</p>` : ''}
+      ${rows.map(r => `
+        <div class="stat-row">
+          <span class="pos">#${r.rank_by_length}</span>
+          <span class="who"><b>${esc(r.breeder_name)}</b>${r.generation ? ' · ' + esc(r.generation) : ''}</span>
+          <span class="metrics">
+            ${r.length_mm != null ? `<b>${r.length_mm}mm</b>` : ''}${r.weight_g != null ? ` · ${r.weight_g}g` : ''}
+          </span>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderStatsForm() {
+  const slot = $('#stats-form-slot');
+  slot.innerHTML = `
+  <form class="stats-form" id="stats-form">
+    <div class="grid">
+      <div class="field"><label for="s-species">สายพันธุ์ (ละติน) *</label><input id="s-species" required placeholder="เช่น Dorcus curvidens curvidens"></div>
+      <div class="field"><label for="s-species-th">ชื่อไทย</label><input id="s-species-th" placeholder="เช่น ด้วงคีมเคอร์วิเดนส์"></div>
+      <div class="field"><label for="s-breeder">ชื่อผู้เพาะ *</label><input id="s-breeder" required></div>
+      <div class="field"><label for="s-length">ความยาว (mm) *</label><input id="s-length" type="number" step="0.1" required></div>
+    </div>
+    <button type="button" class="more-toggle" id="more-toggle">+ รายละเอียดเพิ่มเติม (ไม่บังคับ)</button>
+    <div class="grid more-fields" id="more-fields">
+      <div class="field"><label for="s-weight">น้ำหนักสูงสุด (g)</label><input id="s-weight" type="number" step="0.1"></div>
+      <div class="field"><label for="s-gen">Gen.</label><input id="s-gen" placeholder="F1 / CBF1 ..."></div>
+      <div class="field"><label for="s-duration">ระยะเวลาเลี้ยง (เดือน)</label><input id="s-duration" placeholder="เช่น 10 หรือ ~6"></div>
+      <div class="field"><label for="s-temp">อุณหภูมิ</label><input id="s-temp" placeholder="เช่น 21-23"></div>
+      <div class="field"><label for="s-container">ขนาดกระปุก</label><input id="s-container" placeholder="เช่น 1200 หรือ 450(L1-2),1400(L3)"></div>
+      <div class="field"><label for="s-mat">วัสดุรอง (Mat)</label><input id="s-mat"></div>
+      <div class="field"><label for="s-kinshi">เชื้อเห็ด (Kinshi)</label><input id="s-kinshi"></div>
+      <div class="field"><label for="s-image">ลิงก์รูปภาพ</label><input id="s-image" type="url" placeholder="วางลิงก์รูป (ถ้ามี)"></div>
+      <div class="field" style="grid-column:1/-1"><label for="s-remarks">หมายเหตุ</label><textarea id="s-remarks" rows="2"></textarea></div>
+    </div>
+    <div class="err" id="stats-err" style="color:#d13a4a;font-size:13px"></div>
+    <div class="submit-row"><button type="submit" class="btn primary" id="stats-submit">ส่งสถิติ</button></div>
+  </form>`;
+  $('#more-toggle').addEventListener('click', () => {
+    const el = $('#more-fields');
+    el.classList.toggle('open');
+  });
+  $('#stats-form').addEventListener('submit', handleStatSubmit);
+}
+
+async function handleStatSubmit(e) {
+  e.preventDefault();
+  const errEl = $('#stats-err');
+  const submitBtn = $('#stats-submit');
+  errEl.textContent = '';
+  const row = {
+    species: $('#s-species').value.trim(),
+    species_th: $('#s-species-th').value.trim() || null,
+    breeder_name: $('#s-breeder').value.trim(),
+    length_mm: $('#s-length').value ? Number($('#s-length').value) : null,
+    weight_g: $('#s-weight').value ? Number($('#s-weight').value) : null,
+    generation: $('#s-gen').value.trim() || null,
+    duration_months: $('#s-duration').value.trim() || null,
+    temperature: $('#s-temp').value.trim() || null,
+    container: $('#s-container').value.trim() || null,
+    mat: $('#s-mat').value.trim() || null,
+    kinshi: $('#s-kinshi').value.trim() || null,
+    image_url: $('#s-image').value.trim() || null,
+    remarks: $('#s-remarks').value.trim() || null,
+  };
+  if (!row.species || !row.breeder_name) { errEl.textContent = 'กรอกสายพันธุ์และชื่อผู้เพาะก่อนครับ'; return; }
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'กำลังส่ง...';
+  const { error } = await sb.from('beetle_stats').insert(row);
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'ส่งสถิติ';
+  if (error) { errEl.textContent = 'ส่งไม่สำเร็จ: ' + error.message; return; }
+  $('#stats-form').reset();
+  $('#more-fields').classList.remove('open');
+  toast('ส่งสถิติแล้ว!');
+  loadWorldStats();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  $('#pane-feed').style.display = tab === 'feed' ? '' : 'none';
+  $('#pane-world').style.display = tab === 'world' ? '' : 'none';
+  if (tab === 'world' && !worldLoaded) {
+    renderStatsForm();
+    loadWorldStats();
+  }
+}
+
+/* ---------- boot ---------- */
+
+(async function init() {
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+  $('#stats-search').addEventListener('input', e => renderWorldBoard(e.target.value));
+  await refreshSession();
+  await loadFeed();
+})();
+
+})();
