@@ -82,7 +82,7 @@ main{padding:24px 0 64px}
   .wrap{max-width:none;padding:0 28px}
   .world-shell{max-width:none;padding:0;display:grid;grid-template-columns:230px 1fr;gap:0;align-items:start}
   .world-side{position:sticky;top:0;height:100dvh;padding:28px 18px;border-right:1px solid var(--border)}
-  .world-content{padding:0 36px}
+  .world-content{padding:0 36px;min-width:0}
   #stats-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;align-items:start}
   .species-group{margin-bottom:0}
   .feed-inner{max-width:640px;margin:0 auto}
@@ -329,7 +329,7 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
 
 .fc-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--chitin,#6d4f00);margin-bottom:10px}
 .fc-head i{color:var(--gold)}
-.fc-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;
+.fc-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;min-width:0;max-width:100%;
   scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .fc-row::-webkit-scrollbar{display:none}
 .fc-card{flex:0 0 auto;width:140px;background:var(--surface);border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border));
