@@ -32,3 +32,23 @@ grant execute on function public.set_user_role(uuid, text) to authenticated;
 
 -- ตั้งตัวเองเป็น Admin ระบบคนแรก (เปลี่ยน 'paradorn' เป็น username จริงของคุณถ้าไม่ตรง)
 update public.profiles set role = 'admin' where username = 'paradorn';
+
+-- view ใช้ select * ต้องสร้างใหม่ทั้งหมดอีกครั้ง ไม่งั้นจะไม่เห็นคอลัมน์ role ที่เพิ่งเพิ่ม
+drop view if exists public.profile_ranks;
+create view public.profile_ranks as
+select
+  p.*,
+  coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 as points,
+  case
+    when coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 >= 51 then 'adult'
+    when coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 >= 31 then 'pupa'
+    when coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 >= 16 then 'l3'
+    when coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 >= 8  then 'l2'
+    when coalesce(pc.n, 0) * 3 + coalesce(cc.n, 0) * 1 >= 3  then 'l1'
+    else 'egg'
+  end as rank_stage
+from public.profiles p
+left join (select author_id, count(*) n from public.posts group by author_id) pc on pc.author_id = p.id
+left join (select author_id, count(*) n from public.post_comments group by author_id) cc on cc.author_id = p.id;
+
+grant select on public.profile_ranks to anon, authenticated;
