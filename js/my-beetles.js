@@ -263,11 +263,13 @@ async function renderOverview(root) {
     </div>`}
     <div class="mb-list-head"><h3>บันทึกล่าสุด</h3>${beetles.length ? `<button type="button" class="mb-link" id="mb-see-all">ดูทั้งหมด</button>` : ''}</div>
     ${recent.length === 0
-      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ — กดปุ่ม + ด้านล่างเพื่อบันทึกตัวแรก</p></div>`
+      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ</p><button type="button" class="btn primary" id="mb-empty-add"><i class="ph-fill ph-plus"></i>บันทึกด้วงตัวแรก</button></div>`
       : `<div class="mb-cards">${recent.map(beetleCardHTML).join('')}</div>`}`;
 
   root.querySelectorAll('.mb-due-item, .mb-card').forEach(el =>
     el.addEventListener('click', () => goToBeetle(el.dataset.id)));
+  const emptyAdd = $('#mb-empty-add');
+  if (emptyAdd) emptyAdd.addEventListener('click', goAdd);
   root.querySelectorAll('.mb-tile[data-go]').forEach(el =>
     el.addEventListener('click', () => goToList(el.dataset.go)));
   const seeAll = $('#mb-see-all');
@@ -307,10 +309,14 @@ async function renderList(root, initialFilter) {
     const list = beetles.filter(b => f.match(b.stage) &&
       (!q || [b.name, b.code, b.species, b.bloodline, b.container].join(' ').toLowerCase().includes(q)));
     $('#mb-list-body').innerHTML = list.length === 0
-      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>${beetles.length === 0 ? 'ยังไม่มีด้วงในระบบ' : 'ไม่พบด้วงตามเงื่อนไข'}</p></div>`
+      ? (beetles.length === 0
+          ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ</p><button type="button" class="btn primary" id="mb-empty-add"><i class="ph-fill ph-plus"></i>บันทึกด้วงตัวแรก</button></div>`
+          : `<div class="mb-empty"><i class="ph-fill ph-magnifying-glass"></i><p>ไม่พบด้วงตามเงื่อนไข ลองเปลี่ยนตัวกรองดูครับ</p></div>`)
       : `<div class="mb-cards">${list.map(beetleCardHTML).join('')}</div>`;
     root.querySelectorAll('.mb-card').forEach(el => el.addEventListener('click', () => go('detail', el.dataset.id)));
     root.querySelectorAll('#mb-filters .mb-chip').forEach(c => c.classList.toggle('on', c.dataset.f === filter));
+    const emptyAdd = $('#mb-empty-add');
+    if (emptyAdd) emptyAdd.addEventListener('click', goAdd);
   };
   $('#mb-search').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); draw(); });
   root.querySelectorAll('#mb-filters .mb-chip').forEach(c => c.addEventListener('click', () => { filter = c.dataset.f; draw(); }));

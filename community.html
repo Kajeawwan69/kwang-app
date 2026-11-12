@@ -141,7 +141,7 @@ main{padding:24px 0 64px}
 .mb-fab{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;
   background:linear-gradient(135deg,#1a2415,#10160f);color:var(--gold);border:2px solid var(--surface);
   box-shadow:0 8px 20px rgba(16,22,15,.26);display:flex;align-items:center;justify-content:center;
-  font-size:24px;cursor:pointer;z-index:20;transition:transform 140ms ease,filter 140ms ease}
+  font-size:24px;cursor:pointer;z-index:35;transition:transform 140ms ease,filter 140ms ease}
 .mb-fab:hover{filter:brightness(1.15);transform:translateX(-50%) translateY(-2px)}
 .mb-fab:active{transform:translateX(-50%) translateY(0)}
 .mb-fab.hidden{display:none}
@@ -273,10 +273,12 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
 .mb-photo-prev img{width:100%;height:100%;object-fit:cover}
 .mb-photo-prev i{font-size:22px;color:var(--text-3)}
 .mb-form-title{font-family:var(--display);font-size:19px;margin:0 0 14px}
-.mb-empty{text-align:center;padding:48px 20px;color:var(--text-3)}
-.mb-empty i{font-size:30px;color:var(--leaf-deep);margin-bottom:10px;display:block}
-.mb-empty p{margin:0;font-size:14px}
+.mb-empty{text-align:center;padding:40px 24px;color:var(--text-3);border:2px dashed var(--border);border-radius:18px;
+  background:var(--surface)}
+.mb-empty i{font-size:32px;color:var(--leaf-deep);margin-bottom:10px;display:block}
+.mb-empty p{margin:0 0 14px;font-size:14px}
 .mb-empty a{color:var(--leaf-deep);font-weight:600}
+.mb-empty:last-child{margin-bottom:0}
 
 .composer{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 1px 2px rgba(16,22,15,.04)}
 .composer textarea{width:100%;border:none;resize:none;font:inherit;color:var(--text);outline:none;min-height:44px}
