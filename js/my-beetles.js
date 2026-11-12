@@ -206,12 +206,21 @@ async function renderOverview(root) {
 
   const recent = [...beetles].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')).slice(0, 5);
 
+  const stagePriority = ['adult', 'pupa', 'l3', 'l2', 'l1', 'egg'];
+  const heroPhoto = beetles
+    .filter(b => b.photo)
+    .sort((a, b) => stagePriority.indexOf(a.stage) - stagePriority.indexOf(b.stage))[0];
+
   root.innerHTML = `
+    <div class="mb-hero" ${heroPhoto ? `style="background-image:linear-gradient(90deg,#10160f 30%,rgba(16,22,15,.55)),url('${esc(heroPhoto.photo)}')"` : ''}>
+      <i class="ph-fill ph-crown-simple"></i>
+      <div><div class="mb-hero-n">${beetles.length} ตัว</div><div class="mb-hero-l">คอลเลกชันของคุณ</div></div>
+    </div>
     <div class="mb-stat-tiles">
-      <button type="button" class="mb-tile" data-go="all"><i class="ph-fill ph-identification-card"></i><div><b>${beetles.length}</b><span>ตัวทั้งหมด</span></div></button>
-      <button type="button" class="mb-tile" data-go="all"><i class="ph-fill ph-dna"></i><div><b>${spSet.size}</b><span>สายพันธุ์</span></div></button>
-      <button type="button" class="mb-tile" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
-      <button type="button" class="mb-tile" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
+      <button type="button" class="mb-tile accent-leaf" data-go="all"><i class="ph-fill ph-identification-card"></i><div><b>${beetles.length}</b><span>ตัวทั้งหมด</span></div></button>
+      <button type="button" class="mb-tile accent-copper" data-go="all"><i class="ph-fill ph-dna"></i><div><b>${spSet.size}</b><span>สายพันธุ์</span></div></button>
+      <button type="button" class="mb-tile accent-gold" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
+      <button type="button" class="mb-tile accent-trophy" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
     </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
@@ -226,9 +235,9 @@ async function renderOverview(root) {
     <div class="mb-list-head"><h3>บันทึกล่าสุด</h3>${beetles.length ? `<button type="button" class="mb-link" id="mb-see-all">ดูทั้งหมด</button>` : ''}</div>
     ${recent.length === 0
       ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ — กดปุ่ม + ด้านล่างเพื่อบันทึกตัวแรก</p></div>`
-      : `<div class="mb-rows">${recent.map(beetleRowHTML).join('')}</div>`}`;
+      : `<div class="mb-cards">${recent.map(beetleCardHTML).join('')}</div>`}`;
 
-  root.querySelectorAll('.mb-due-item, .mb-row').forEach(el =>
+  root.querySelectorAll('.mb-due-item, .mb-card').forEach(el =>
     el.addEventListener('click', () => goToBeetle(el.dataset.id)));
   root.querySelectorAll('.mb-tile[data-go]').forEach(el =>
     el.addEventListener('click', () => goToList(el.dataset.go)));
@@ -237,16 +246,19 @@ async function renderOverview(root) {
 }
 
 /* ---------- list ---------- */
-function beetleRowHTML(b) {
+function beetleCardHTML(b) {
   return `
-    <div class="mb-row" data-id="${b.id}" role="button" tabindex="0">
-      <div class="mb-thumb">${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}</div>
-      <div class="mb-info">
-        <div class="mb-title"><b>${esc(beetleTitle(b))}</b><i class="ph-fill ${sexIcon(b.sex)}"></i></div>
+    <div class="mb-card" data-id="${b.id}" role="button" tabindex="0">
+      <div class="mb-card-photo">
+        ${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}
+        <span class="mb-card-badge ${stageOf(b.stage).cls}">${esc(stageOf(b.stage).label)}</span>
+        <i class="mb-card-sex ph-fill ${sexIcon(b.sex)}"></i>
+      </div>
+      <div class="mb-card-body">
+        <b>${esc(beetleTitle(b))}</b>
         <small>${esc(beetleSub(b))}</small>
         ${beetleMeas(b) ? `<span class="mb-meas">${esc(beetleMeas(b))}</span>` : ''}
       </div>
-      <span class="mb-pill ${stageOf(b.stage).cls}">${esc(stageOf(b.stage).label)}</span>
     </div>`;
 }
 
@@ -267,8 +279,8 @@ async function renderList(root, initialFilter) {
       (!q || [b.name, b.code, b.species, b.bloodline, b.container].join(' ').toLowerCase().includes(q)));
     $('#mb-list-body').innerHTML = list.length === 0
       ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>${beetles.length === 0 ? 'ยังไม่มีด้วงในระบบ' : 'ไม่พบด้วงตามเงื่อนไข'}</p></div>`
-      : `<div class="mb-rows">${list.map(beetleRowHTML).join('')}</div>`;
-    root.querySelectorAll('.mb-row').forEach(el => el.addEventListener('click', () => go('detail', el.dataset.id)));
+      : `<div class="mb-cards">${list.map(beetleCardHTML).join('')}</div>`;
+    root.querySelectorAll('.mb-card').forEach(el => el.addEventListener('click', () => go('detail', el.dataset.id)));
     root.querySelectorAll('#mb-filters .mb-chip').forEach(c => c.classList.toggle('on', c.dataset.f === filter));
   };
   $('#mb-search').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); draw(); });
