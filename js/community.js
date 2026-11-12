@@ -96,6 +96,9 @@ const state = {
   authMode: 'login',       // 'login' | 'signup'
 };
 
+/* ให้ my-beetles.js (คนละไฟล์/คนละ closure) อ่านโปรไฟล์ปัจจุบันได้ */
+window.getCurrentProfile = () => state.profile;
+
 /* ---------- auth ---------- */
 
 async function ensureProfile(user) {
@@ -382,6 +385,7 @@ function renderAuthSlot() {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
     $('#login-btn').addEventListener('click', () => openAuthModal('login'));
   }
+  window.dispatchEvent(new Event('profile-updated'));
 }
 
 function openAuthModal(mode) {

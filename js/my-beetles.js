@@ -81,6 +81,10 @@ const beetleMeas = b => [b.weight ? b.weight + ' g' : '', b.size ? b.size + ' mm
 const weightLabelFor = stage => stage === 'adult' ? 'น้ำหนัก (g)' : 'น้ำหนักหนอน (g)';
 const weightHintFor = stage => stage === 'adult' ? '11.4' : '38.2';
 
+/* เกณฑ์แต้มของระบบยศสมาชิก (ต้องตรงกับ sql/profile_rank.sql) ใช้แค่คำนวณหลอดพลัง ไม่ได้เก็บค่าเอง */
+const RANK_ORDER = ['egg', 'l1', 'l2', 'l3', 'pupa', 'adult'];
+const RANK_THRESHOLDS = { egg: 0, l1: 3, l2: 8, l3: 16, pupa: 31, adult: 51 };
+
 function toast(msg) {
   let t = document.querySelector('.toast');
   if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
@@ -211,7 +215,32 @@ async function renderOverview(root) {
     .filter(b => b.photo)
     .sort((a, b) => stagePriority.indexOf(a.stage) - stagePriority.indexOf(b.stage))[0];
 
+  const profile = window.getCurrentProfile && window.getCurrentProfile();
+  let profileHeadHTML = '';
+  if (profile) {
+    const stage = stageOf(profile.rank_stage || 'egg');
+    const idx = RANK_ORDER.indexOf(profile.rank_stage || 'egg');
+    const curMin = RANK_THRESHOLDS[profile.rank_stage || 'egg'] || 0;
+    const nextStage = RANK_ORDER[idx + 1];
+    const nextMin = nextStage ? RANK_THRESHOLDS[nextStage] : null;
+    const points = profile.points || 0;
+    const pct = nextMin ? Math.max(0, Math.min(100, Math.round((points - curMin) / (nextMin - curMin) * 100))) : 100;
+    profileHeadHTML = `
+    <div class="mb-profile-head">
+      <div class="mb-profile-avatar">${profile.avatar_url ? `<img src="${esc(profile.avatar_url)}" alt="">` : '<i class="ph-fill ph-user-circle"></i>'}</div>
+      <div class="mb-profile-info">
+        <b>${esc(profile.display_name || profile.username)}</b>
+        <div class="mb-profile-meta">
+          <span class="mb-pill ${stage.cls}">${esc(stage.label)}</span>
+          <span class="mb-lv">Lv.${points}</span>
+        </div>
+        <div class="mb-power-bar"><div class="mb-power-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }
+
   root.innerHTML = `
+    ${profileHeadHTML}
     <div class="mb-hero" ${heroPhoto ? `style="background-image:linear-gradient(90deg,#10160f 30%,rgba(16,22,15,.55)),url('${esc(heroPhoto.photo)}')"` : ''}>
       <i class="ph-fill ph-crown-simple"></i>
       <div><div class="mb-hero-n">${beetles.length} ตัว</div><div class="mb-hero-l">คอลเลกชันของคุณ</div></div>
@@ -507,6 +536,10 @@ async function renderForm(root, id) {
 
 /* ---------- boot ---------- */
 $('#mb-fab').addEventListener('click', goAdd);
+window.addEventListener('profile-updated', () => {
+  const overviewTab = document.querySelector('.tab[data-tab="overview"]');
+  if (overviewTab && overviewTab.classList.contains('active')) go('overview');
+});
 go('overview');
 go('list');
 

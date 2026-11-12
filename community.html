@@ -141,6 +141,18 @@ main{padding:24px 0 64px}
 .mb-fab:active{transform:translateX(-50%) translateY(0)}
 .mb-fab.hidden{display:none}
 
+.mb-profile-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.mb-profile-avatar{width:52px;height:52px;border-radius:50%;background:var(--surface-2);border:2px solid var(--surface);
+  box-shadow:0 0 0 1px var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.mb-profile-avatar img{width:100%;height:100%;object-fit:cover}
+.mb-profile-avatar i{font-size:26px;color:var(--leaf-deep)}
+.mb-profile-info{flex:1;min-width:0}
+.mb-profile-info b{font-size:15px}
+.mb-profile-meta{display:flex;align-items:center;gap:8px;margin:4px 0 6px}
+.mb-lv{font-size:12px;font-weight:700;color:var(--copper-deep)}
+.mb-power-bar{height:7px;border-radius:100px;background:var(--surface-2);overflow:hidden;max-width:260px}
+.mb-power-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--leaf),var(--gold));transition:width 300ms ease}
+
 .mb-hero{position:relative;display:flex;align-items:center;gap:14px;border-radius:16px;padding:20px;margin-bottom:14px;
   background:linear-gradient(135deg,#1a2415,#10160f);background-size:cover;background-position:center;color:#fff;overflow:hidden}
 .mb-hero i{font-size:30px;color:var(--gold);flex-shrink:0}
