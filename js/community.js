@@ -530,6 +530,7 @@ async function handleStatSubmit(e) {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.body.classList.toggle('wide', tab === 'ranking');
   ['ranking', 'feed', 'auction', 'care'].forEach(name => {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });

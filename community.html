@@ -16,19 +16,26 @@
   --text:#10160f; --text-2:#23302a; --text-3:#62736a;
   --leaf:#17a75a; --leaf-600:#14874a; --leaf-deep:#0e5c33; --on-leaf:#ffffff;
   --gold:#ffc61a; --ink:#10160f;
+  --copper:oklch(76% 0.15 58); --copper-deep:oklch(37% 0.12 45);
   --display:'Kanit',system-ui,sans-serif; --body:'Kanit',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:var(--body);color:var(--text);line-height:1.6;
   background:
     radial-gradient(900px 360px at 8% -10%, rgba(23,167,90,.10), transparent 72%),
+    radial-gradient(700px 300px at 100% 10%, color-mix(in oklch, var(--copper) 14%, transparent), transparent 70%),
     radial-gradient(620px 280px at 96% -2%, rgba(255,198,26,.16), transparent 72%),
     var(--bg)}
 h1,h2,h3{font-family:var(--display);font-weight:500;text-wrap:balance;margin:0}
 a{color:var(--leaf-deep);text-decoration:none}
 ::selection{background:var(--leaf-deep);color:#fff}
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--leaf);outline-offset:2px;border-radius:4px}
-.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+@media(min-width:900px){
+  body.wide .wrap{max-width:1080px}
+  #stats-board{columns:2;column-gap:18px}
+  .species-group{break-inside:avoid-column;-webkit-column-break-inside:avoid}
+}
 .topnav{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
 .topnav .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-family:var(--display)}
 .topnav .brand img{width:30px;height:30px;border-radius:50%;object-fit:cover}
@@ -44,14 +51,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .user-chip i{font-size:18px;color:var(--leaf-deep)}
 
 main{padding:24px 0 64px}
-.world-title{font-family:var(--display);font-size:22px;margin:20px 0 0}
+.world-title{font-family:var(--display);font-size:22px;margin:20px 0 0;display:flex;align-items:center;gap:10px}
+.world-title::before{content:"";width:5px;height:22px;border-radius:3px;
+  background:linear-gradient(var(--copper),var(--copper-deep));flex-shrink:0}
 .tabs{display:flex;gap:4px;padding-top:14px;overflow-x:auto}
 .tab{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13.5px;font-weight:600;color:var(--text-3);
   background:none;border:none;white-space:nowrap;padding:10px 4px;margin-right:20px;cursor:pointer;border-bottom:2px solid transparent}
 .tab i{font-size:16px}
-.tab.active{color:var(--leaf-deep);border-bottom-color:var(--leaf-deep)}
+.tab.active{color:var(--copper-deep);border-bottom-color:var(--copper)}
 .coming-soon{text-align:center;padding:64px 20px;color:var(--text-3)}
-.coming-soon i{font-size:34px;color:var(--leaf-deep);margin-bottom:10px;display:block}
+.coming-soon i{font-size:34px;color:var(--copper-deep);margin-bottom:10px;display:block}
 .coming-soon h2{font-family:var(--display);color:var(--text);margin:0 0 6px;font-size:18px}
 .coming-soon p{margin:0;font-size:14px}
 
@@ -75,6 +84,7 @@ main{padding:24px 0 64px}
 .species-group .th-name{font-size:12.5px;color:var(--text-3);font-weight:500;margin:0 0 12px}
 
 .trophy-band{border-radius:13px;background:linear-gradient(135deg,#1a2415,#10160f);
+  border-left:3px solid var(--copper);box-shadow:0 0 0 1px rgba(0,0,0,.02),0 6px 16px color-mix(in oklch, var(--copper) 18%, transparent);
   padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .trophy-band i{font-size:22px;color:var(--gold);flex-shrink:0}
 .trophy-band .tt{font-size:13.5px;color:#ffffff;font-weight:600}
@@ -90,7 +100,7 @@ main{padding:24px 0 64px}
   font-size:12px;font-weight:700;background:var(--surface-2);color:var(--text-3)}
 .rank-pos.gold{background:var(--gold);color:var(--ink);box-shadow:0 0 0 3px rgba(255,198,26,.25)}
 .rank-pos.silver{background:#e4e9e0;color:var(--text-2)}
-.rank-pos.bronze{background:#f0ddc0;color:#6d4f00}
+.rank-pos.bronze{background:color-mix(in oklch, var(--copper) 45%, #fff3c4);color:var(--copper-deep)}
 .composer{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 1px 2px rgba(16,22,15,.04)}
 .composer textarea{width:100%;border:none;resize:none;font:inherit;color:var(--text);outline:none;min-height:44px}
 .composer .row{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
@@ -145,7 +155,7 @@ main{padding:24px 0 64px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
-<body>
+<body class="wide">
 
 <nav class="topnav">
   <div class="wrap" style="display:flex;align-items:center;width:100%">
