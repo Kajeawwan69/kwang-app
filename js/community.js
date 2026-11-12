@@ -792,7 +792,7 @@ function switchTab(tab) {
   ['overview', 'ranking', 'feed', 'mybeetles', 'auction', 'care'].forEach(name => {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });
-  $('#mb-fab').classList.toggle('hidden', tab !== 'overview' && tab !== 'mybeetles');
+  $('#mb-fab').classList.toggle('hidden', tab !== 'mybeetles');
   if (tab === 'ranking' && !worldLoaded) {
     loadWorldStats();
   }
