@@ -422,18 +422,25 @@ async function loadWorldStats() {
   renderWorldBoard();
 }
 
-function renderWorldBoard(filter = '') {
+function renderWorldBoard() {
   const board = $('#stats-board');
-  const q = filter.trim().toLowerCase();
+  const q = $('#stats-search').value.trim().toLowerCase();
+  const category = $('#stats-category-filter').value;
   const groups = new Map();
-  worldStats.forEach(s => {
-    const key = s.species + '|' + (s.species_th || '');
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(s);
-  });
+  worldStats
+    .filter(s => !category || s.category === category)
+    .forEach(s => {
+      const key = s.species + '|' + (s.species_th || '');
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(s);
+    });
   let entries = [...groups.entries()];
   if (q) entries = entries.filter(([key]) => key.toLowerCase().includes(q));
-  if (!entries.length) { board.innerHTML = '<div class="empty">ไม่พบสายพันธุ์ที่ค้นหา หรือยังไม่มีสถิติ — ส่งสถิติของคุณเป็นรายการแรกสิ!</div>'; return; }
+  if (!entries.length) {
+    const msg = category ? `ยังไม่มีสถิติในหมวด "${esc(category)}" — เป็นคนแรกที่ส่งสิ!` : 'ไม่พบสายพันธุ์ที่ค้นหา หรือยังไม่มีสถิติ — ส่งสถิติของคุณเป็นรายการแรกสิ!';
+    board.innerHTML = `<div class="empty">${msg}</div>`;
+    return;
+  }
   const posClass = n => n === 1 ? 'gold' : n === 2 ? 'silver' : n === 3 ? 'bronze' : '';
   board.innerHTML = entries.map(([key, rows]) => {
     const [species, speciesTh] = key.split('|');
@@ -478,6 +485,14 @@ function openStatsModal() {
       <p class="sub">แชร์สถิติด้วงของคุณเข้าสู่กระดาน Ranking</p>
       <form id="stats-form">
         <div class="grid">
+          <div class="field"><label for="s-category">หมวดหมู่ *</label>
+            <select id="s-category" required>
+              <option value="">เลือกหมวด</option>
+              <option value="ด้วงกว่าง">ด้วงกว่าง</option>
+              <option value="คีม">คีม</option>
+              <option value="ดอกไม้">ดอกไม้</option>
+            </select>
+          </div>
           <div class="field"><label for="s-species">สายพันธุ์ (ละติน) *</label><input id="s-species" required placeholder="เช่น Dorcus curvidens curvidens"></div>
           <div class="field"><label for="s-species-th">ชื่อไทย</label><input id="s-species-th" placeholder="เช่น ด้วงคีมเคอร์วิเดนส์"></div>
           <div class="field"><label for="s-breeder">ชื่อผู้เพาะ *</label><input id="s-breeder" required></div>
@@ -512,6 +527,7 @@ async function handleStatSubmit(e) {
   const submitBtn = $('#stats-submit');
   errEl.textContent = '';
   const row = {
+    category: $('#s-category').value,
     species: $('#s-species').value.trim(),
     species_th: $('#s-species-th').value.trim() || null,
     breeder_name: $('#s-breeder').value.trim(),
@@ -526,7 +542,7 @@ async function handleStatSubmit(e) {
     image_url: $('#s-image').value.trim() || null,
     remarks: $('#s-remarks').value.trim() || null,
   };
-  if (!row.species || !row.breeder_name) { errEl.textContent = 'กรอกสายพันธุ์และชื่อผู้เพาะก่อนครับ'; return; }
+  if (!row.category || !row.species || !row.breeder_name) { errEl.textContent = 'กรอกหมวดหมู่ สายพันธุ์ และชื่อผู้เพาะก่อนครับ'; return; }
   submitBtn.disabled = true;
   submitBtn.textContent = 'กำลังส่ง...';
   const { error } = await sb.from('beetle_stats').insert(row);
@@ -552,7 +568,8 @@ function switchTab(tab) {
 
 (async function init() {
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
-  $('#stats-search').addEventListener('input', e => renderWorldBoard(e.target.value));
+  $('#stats-search').addEventListener('input', () => renderWorldBoard());
+  $('#stats-category-filter').addEventListener('change', () => renderWorldBoard());
   await refreshSession();
   renderStatsButton();
   await Promise.all([loadFeed(), loadWorldStats()]);
