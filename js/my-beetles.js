@@ -353,11 +353,14 @@ async function renderOverview(root) {
 
 /* ---------- list ---------- */
 function beetleCardHTML(b) {
+  const stage = stageOf(b.stage);
   return `
-    <div class="mb-card" data-id="${b.id}" role="button" tabindex="0">
+    <div class="mb-card ${stage.cls}" data-id="${b.id}" role="button" tabindex="0">
       <div class="mb-card-photo">
+        <div class="mb-card-glow"></div>
         ${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}
-        <span class="mb-card-badge ${stageOf(b.stage).cls}">${esc(stageOf(b.stage).label)}</span>
+        <div class="mb-card-shine"></div>
+        <span class="mb-card-badge ${stage.cls}">${esc(stage.label)}</span>
         <i class="mb-card-sex ph-fill ${sexIcon(b.sex)}"></i>
       </div>
       <div class="mb-card-body">

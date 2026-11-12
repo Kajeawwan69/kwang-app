@@ -238,15 +238,30 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
 .mb-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 @media(min-width:560px){.mb-cards{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:900px){.mb-cards{grid-template-columns:repeat(4,1fr)}}
-.mb-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;
-  box-shadow:0 1px 2px rgba(16,22,15,.04);transition:transform 140ms ease,box-shadow 140ms ease,border-color 140ms ease}
-.mb-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(16,22,15,.1);border-color:color-mix(in srgb,var(--leaf) 35%,var(--border))}
-.mb-card:active{transform:translateY(0)}
-.mb-card-photo{position:relative;aspect-ratio:1;background:var(--surface-2);display:flex;align-items:center;justify-content:center}
-.mb-card-photo img{width:100%;height:100%;object-fit:cover}
-.mb-card-photo i{font-size:30px;color:var(--leaf-deep)}
-.mb-card-badge{position:absolute;top:8px;left:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;box-shadow:0 1px 3px rgba(16,22,15,.2)}
-.mb-card-sex{position:absolute;bottom:8px;right:8px;width:22px;height:22px;border-radius:50%;background:rgba(16,22,15,.55);
+.mb-card{background:var(--surface);border:2px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;
+  box-shadow:0 2px 6px rgba(16,22,15,.08);transition:transform 140ms ease,box-shadow 140ms ease,border-color 140ms ease}
+.mb-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 12px 26px rgba(16,22,15,.14)}
+.mb-card:active{transform:translateY(0) scale(1)}
+.mb-card.mb-stg-egg{border-color:#9fb8a6}
+.mb-card.mb-stg-l1{border-color:#e8c84a}
+.mb-card.mb-stg-l2{border-color:var(--gold)}
+.mb-card.mb-stg-l3{border-color:#c98f00}
+.mb-card.mb-stg-pupa{border-color:#6bbf86}
+.mb-card.mb-stg-adult{border-color:var(--leaf-600)}
+.mb-card-photo{position:relative;aspect-ratio:1;background:var(--surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mb-card-glow{position:absolute;inset:0;opacity:.55}
+.mb-stg-egg .mb-card-glow{background:radial-gradient(circle at 50% 38%,#9fb8a6,transparent 68%)}
+.mb-stg-l1 .mb-card-glow{background:radial-gradient(circle at 50% 38%,#e8c84a,transparent 68%)}
+.mb-stg-l2 .mb-card-glow{background:radial-gradient(circle at 50% 38%,var(--gold),transparent 68%)}
+.mb-stg-l3 .mb-card-glow{background:radial-gradient(circle at 50% 38%,#c98f00,transparent 68%)}
+.mb-stg-pupa .mb-card-glow{background:radial-gradient(circle at 50% 38%,#6bbf86,transparent 68%)}
+.mb-stg-adult .mb-card-glow{background:radial-gradient(circle at 50% 38%,var(--leaf-600),transparent 68%)}
+.mb-card-photo img{position:relative;width:100%;height:100%;object-fit:cover;z-index:1}
+.mb-card-photo i{position:relative;z-index:1;font-size:30px;color:var(--leaf-deep)}
+.mb-card-shine{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%)}
+.mb-card-badge{position:absolute;top:8px;left:8px;z-index:3;font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;box-shadow:0 1px 3px rgba(16,22,15,.2)}
+.mb-card-sex{position:absolute;bottom:8px;right:8px;z-index:3;width:22px;height:22px;border-radius:50%;background:rgba(16,22,15,.55);
   color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
 .mb-card-body{padding:10px 12px}
 .mb-card-body b{display:block;font-size:13.5px}
