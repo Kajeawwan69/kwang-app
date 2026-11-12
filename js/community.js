@@ -44,6 +44,13 @@ async function resizeImage(file, maxDim = 1600, quality = 0.82) {
   return blob || file;
 }
 
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} หมดเวลา — เน็ตอาจช้าหรือหลุด ลองรีเฟรชใหม่`)), ms)),
+  ]);
+}
+
 function toast(msg) {
   let t = $('.toast');
   if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
@@ -132,11 +139,15 @@ async function handleLogout() {
 
 async function loadFeed() {
   const feedEl = $('#feed');
-  const { data: posts, error } = await sb
-    .from('posts')
-    .select('id,caption,image_url,created_at,author_id,profiles!posts_author_id_fkey(username,display_name)')
-    .order('created_at', { ascending: false })
-    .limit(30);
+  let posts, error;
+  try {
+    ({ data: posts, error } = await withTimeout(
+      sb.from('posts')
+        .select('id,caption,image_url,created_at,author_id,profiles!posts_author_id_fkey(username,display_name)')
+        .order('created_at', { ascending: false })
+        .limit(30),
+      12000, 'โหลดฟีด'));
+  } catch (err) { feedEl.innerHTML = `<div class="empty">${esc(err.message)}</div>`; return; }
   if (error) { feedEl.innerHTML = `<div class="empty">โหลดฟีดไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
   state.posts = posts || [];
   if (!state.posts.length) {
@@ -396,11 +407,15 @@ let worldLoaded = false;
 
 async function loadWorldStats() {
   const board = $('#stats-board');
-  const { data, error } = await sb
-    .from('beetle_stats_ranked')
-    .select('*')
-    .order('species', { ascending: true })
-    .order('rank_by_length', { ascending: true });
+  let data, error;
+  try {
+    ({ data, error } = await withTimeout(
+      sb.from('beetle_stats_ranked')
+        .select('*')
+        .order('species', { ascending: true })
+        .order('rank_by_length', { ascending: true }),
+      12000, 'โหลดสถิติ'));
+  } catch (err) { board.innerHTML = `<div class="empty">${esc(err.message)}</div>`; return; }
   if (error) { board.innerHTML = `<div class="empty">โหลดสถิติไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
   worldStats = data || [];
   worldLoaded = true;
