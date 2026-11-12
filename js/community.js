@@ -515,9 +515,10 @@ async function handleStatSubmit(e) {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  $('#pane-feed').style.display = tab === 'feed' ? '' : 'none';
-  $('#pane-world').style.display = tab === 'world' ? '' : 'none';
-  if (tab === 'world' && !worldLoaded) {
+  ['ranking', 'feed', 'auction', 'care'].forEach(name => {
+    $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
+  });
+  if (tab === 'ranking' && !worldLoaded) {
     renderStatsForm();
     loadWorldStats();
   }
@@ -529,7 +530,8 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
   $('#stats-search').addEventListener('input', e => renderWorldBoard(e.target.value));
   await refreshSession();
-  await loadFeed();
+  renderStatsForm();
+  await Promise.all([loadFeed(), loadWorldStats()]);
 })();
 
 })();
