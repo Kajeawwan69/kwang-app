@@ -288,15 +288,14 @@ async function renderOverview(root) {
         <div class="mb-profile-meta">
           <span class="mb-pill ${stage.cls}">${esc(stage.label)}</span>
           <span class="mb-lv">Lv.${points}</span>
+          <span class="mb-profile-wx" id="mb-wx-body"><span class="mb-wx-note">กำลังโหลดสภาพอากาศ...</span></span>
         </div>
         <div class="mb-power-bar"><div class="mb-power-fill" style="width:${pct}%"></div></div>
       </div>`;
   }
-  const profileHeadHTML = `
-    <div class="mb-profile-head">
-      ${profileInnerHTML}
-      <div class="mb-profile-wx" id="mb-wx-body"><span class="mb-wx-note">กำลังโหลดสภาพอากาศ...</span></div>
-    </div>`;
+  const profileHeadHTML = profile
+    ? `<div class="mb-profile-head">${profileInnerHTML}</div>`
+    : `<div class="mb-profile-wx mb-profile-wx-standalone" id="mb-wx-body"><span class="mb-wx-note">กำลังโหลดสภาพอากาศ...</span></div>`;
 
   root.innerHTML = `
     ${profileHeadHTML}
