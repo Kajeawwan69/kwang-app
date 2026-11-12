@@ -789,7 +789,7 @@ async function handleStatSubmit(e) {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  ['ranking', 'feed', 'auction', 'care'].forEach(name => {
+  ['ranking', 'feed', 'mybeetles', 'auction', 'care'].forEach(name => {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });
   if (tab === 'ranking' && !worldLoaded) {

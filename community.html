@@ -41,6 +41,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .btn.primary:hover{background:var(--leaf-deep)}
 .btn.ghost{color:var(--text);border-color:var(--border);background:transparent}
 .btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:#d13a4a;border-color:rgba(209,58,74,.35);background:transparent}
+.btn.danger:hover{background:rgba(209,58,74,.08)}
 .btn:disabled{opacity:.55;cursor:default}
 .user-chip{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text-2);
   background:none;border:none;cursor:pointer;padding:0;font-family:inherit}
@@ -81,12 +83,12 @@ main{padding:24px 0 64px}
 .coming-soon p{margin:0;font-size:14px}
 
 .stats-form{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 1px 2px rgba(16,22,15,.04)}
-.stats-form .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
-@media(max-width:560px){.stats-form .grid{grid-template-columns:1fr}}
-.stats-form label{font-size:12.5px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px}
-.stats-form input,.stats-form textarea,.stats-form select{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 12px;font:inherit;font-size:14px;outline:none;background:var(--surface);color:var(--text)}
-.stats-form input:focus,.stats-form textarea:focus,.stats-form select:focus{border-color:var(--leaf)}
-.stats-form .field{margin-bottom:10px}
+.stats-form .grid,#mb-form .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+@media(max-width:560px){.stats-form .grid,#mb-form .grid{grid-template-columns:1fr}}
+.stats-form label,#mb-form label{font-size:12.5px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px}
+.stats-form input,.stats-form textarea,.stats-form select,#mb-form input,#mb-form textarea,#mb-form select{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 12px;font:inherit;font-size:14px;outline:none;background:var(--surface);color:var(--text)}
+.stats-form input:focus,.stats-form textarea:focus,.stats-form select:focus,#mb-form input:focus,#mb-form textarea:focus,#mb-form select:focus{border-color:var(--leaf)}
+.stats-form .field,#mb-form .field{margin-bottom:10px}
 .stats-form .more-toggle{background:none;border:none;color:var(--leaf-deep);font-weight:600;font-size:13.5px;cursor:pointer;padding:6px 0;margin-bottom:6px}
 .stats-form .more-fields{display:none}
 .stats-form .more-fields.open{display:grid}
@@ -123,6 +125,96 @@ main{padding:24px 0 64px}
 .rank-pos.gold{background:var(--gold);color:var(--ink);box-shadow:0 0 0 3px rgba(255,198,26,.25)}
 .rank-pos.silver{background:#e4e9e0;color:var(--text-2)}
 .rank-pos.bronze{background:color-mix(in oklch, var(--copper) 45%, #fff3c4);color:var(--copper-deep)}
+/* ด้วงของฉัน */
+#pane-mybeetles{position:relative}
+.mb-subnav{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.mb-subtab{font:inherit;font-size:14px;font-weight:600;color:var(--text-3);background:none;border:none;
+  padding:8px 4px;margin-right:22px;cursor:pointer;border-bottom:2px solid transparent}
+.mb-subtab.active{color:var(--leaf-deep);border-bottom-color:var(--leaf-deep)}
+.mb-fab{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#1a2415,#10160f);color:var(--gold);border:2px solid var(--surface);
+  box-shadow:0 8px 20px rgba(16,22,15,.26);display:flex;align-items:center;justify-content:center;
+  font-size:24px;cursor:pointer;z-index:20}
+.mb-fab:hover{filter:brightness(1.15)}
+
+.mb-stat-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+@media(min-width:560px){.mb-stat-tiles{grid-template-columns:repeat(4,1fr)}}
+.mb-tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.mb-tile i{font-size:20px;color:var(--leaf-deep);margin-bottom:6px;display:block}
+.mb-tile b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.mb-tile span{font-size:11.5px;color:var(--text-3)}
+.mb-stat-tiles.small .mb-tile{padding:10px}
+.mb-stat-tiles.small .mb-tile span{display:block;margin-bottom:2px}
+.mb-stat-tiles.small .mb-tile b{font-size:15px}
+
+.mb-due{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:18px}
+.mb-due h3{display:flex;align-items:center;gap:8px;font-size:14.5px;margin:0 0 10px;color:var(--chitin,#6d4f00)}
+.mb-due-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--border);cursor:pointer;font-size:13.5px}
+.mb-due-item:first-of-type{border-top:none}
+.mb-due-item i{font-size:17px;color:var(--gold)}
+.mb-due-item .who{flex:1;color:var(--text-2)}
+.mb-due-item .who small{display:block;color:var(--text-3);font-size:11.5px}
+.mb-due-item .over{color:#c98f00;font-weight:600}
+.mb-due-item .code{font-weight:700;color:var(--text)}
+
+.mb-list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mb-list-head h3{font-size:14.5px;margin:0}
+.mb-link{background:none;border:none;color:var(--leaf-deep);font-weight:600;font-size:13px;cursor:pointer}
+
+.mb-rows{display:flex;flex-direction:column;gap:10px}
+.mb-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:10px 12px;cursor:pointer}
+.mb-thumb{width:44px;height:44px;border-radius:10px;background:var(--surface-2);flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center}
+.mb-thumb img{width:100%;height:100%;object-fit:cover}
+.mb-thumb i{font-size:20px;color:var(--leaf-deep)}
+.mb-thumb.big{width:72px;height:72px;border-radius:16px}
+.mb-thumb.big i{font-size:30px}
+.mb-info{flex:1;min-width:0}
+.mb-title{display:flex;align-items:center;gap:6px;font-size:14.5px}
+.mb-title i{font-size:13px;color:var(--text-3)}
+.mb-info small{display:block;color:var(--text-3);font-size:12px}
+.mb-meas{font-size:12px;color:var(--leaf-deep);font-weight:600}
+.mb-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;white-space:nowrap}
+.mb-pill-outline{background:none;border:1px solid var(--border);color:var(--text-2);display:inline-flex;align-items:center;gap:5px}
+.mb-stg-egg{background:#dde6e0;color:var(--text-2)}
+.mb-stg-l1{background:#ffe08a;color:#5c4400}
+.mb-stg-l2{background:var(--gold);color:var(--ink)}
+.mb-stg-l3{background:#c98f00;color:#fff}
+.mb-stg-pupa{background:#8fd9a8;color:#0e5c33}
+.mb-stg-adult{background:var(--leaf-600);color:#fff}
+
+.mb-chips{display:flex;flex-wrap:wrap;gap:8px}
+.mb-chip{font:inherit;font-size:13px;font-weight:600;color:var(--text-2);background:var(--surface-2);
+  border:1px solid var(--border);padding:7px 13px;border-radius:100px;cursor:pointer}
+.mb-chip.on{background:var(--leaf-600);border-color:var(--leaf-600);color:#fff}
+
+.mb-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--text-3);
+  font-size:13.5px;font-weight:600;cursor:pointer;margin-bottom:12px;padding:0}
+.mb-detail-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.mb-detail-head h2{font-family:var(--display);font-size:19px;margin:0}
+.mb-sub{margin:2px 0 8px;color:var(--text-3);font-size:13px}
+.mb-note-line{color:var(--text-3);font-size:12.5px;margin:10px 0}
+.mb-note-card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px}
+.mb-note-card b{display:block;font-size:12.5px;margin-bottom:4px}
+.mb-note-card p{margin:0;font-size:13.5px;color:var(--text-2);white-space:pre-wrap}
+.mb-qa{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.mb-tl-head{font-size:13.5px;color:var(--text-3);margin:18px 0 8px;font-weight:600}
+.mb-tl{list-style:none;margin:0;padding:0}
+.mb-tl li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px dashed var(--border);font-size:13.5px}
+.mb-tl li:first-child{border-top:none}
+.mb-tl i{font-size:16px;color:var(--leaf-deep);margin-top:2px}
+.mb-tl-mid{flex:1}
+.mb-tl-mid small{display:block;color:var(--text-3);font-size:12px}
+.mb-tl-date{color:var(--text-3);font-size:11.5px;flex-shrink:0}
+
+.mb-photo-pick{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.mb-photo-prev{width:56px;height:56px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mb-photo-prev img{width:100%;height:100%;object-fit:cover}
+.mb-photo-prev i{font-size:22px;color:var(--text-3)}
+.mb-form-title{font-family:var(--display);font-size:19px;margin:0 0 14px}
+
 .composer{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 1px 2px rgba(16,22,15,.04)}
 .composer textarea{width:100%;border:none;resize:none;font:inherit;color:var(--text);outline:none;min-height:44px}
 .composer .row{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
@@ -211,6 +303,7 @@ main{padding:24px 0 64px}
     <div class="tabs" id="tabs">
       <button type="button" class="tab active" data-tab="ranking"><i class="ph-fill ph-trophy"></i>Ranking</button>
       <button type="button" class="tab" data-tab="feed"><i class="ph-fill ph-image"></i>ฟีด</button>
+      <button type="button" class="tab" data-tab="mybeetles"><i class="ph-fill ph-bug"></i>ด้วงของฉัน</button>
       <button type="button" class="tab" data-tab="auction"><i class="ph-fill ph-gavel"></i>ตลาดประมูล</button>
       <button type="button" class="tab" data-tab="care"><i class="ph-fill ph-book-open-text"></i>ข้อมูลการเลี้ยง</button>
     </div>
@@ -240,6 +333,15 @@ main{padding:24px 0 64px}
       </div>
     </main>
 
+    <main id="pane-mybeetles" style="display:none">
+      <div class="mb-subnav">
+        <button type="button" class="mb-subtab active" data-mbview="overview">ภาพรวม</button>
+        <button type="button" class="mb-subtab" data-mbview="list">ด้วงของฉัน</button>
+      </div>
+      <div id="mb-root"></div>
+      <button type="button" class="mb-fab" id="mb-fab" title="บันทึกด้วงตัวใหม่"><i class="ph ph-plus"></i></button>
+    </main>
+
     <main id="pane-auction" style="display:none">
       <div class="coming-soon"><i class="ph-fill ph-gavel"></i><h2>ตลาดประมูล</h2><p>กำลังเตรียมพัฒนาอยู่ครับ — เร็วๆ นี้</p></div>
     </main>
@@ -254,5 +356,7 @@ main{padding:24px 0 64px}
 
 <script src="js/supabase-config.js"></script>
 <script src="js/community.js"></script>
+<script src="js/db.js"></script>
+<script src="js/my-beetles.js"></script>
 </body>
 </html>
