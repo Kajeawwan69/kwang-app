@@ -419,20 +419,31 @@ function renderWorldBoard(filter = '') {
   let entries = [...groups.entries()];
   if (q) entries = entries.filter(([key]) => key.toLowerCase().includes(q));
   if (!entries.length) { board.innerHTML = '<div class="empty">ไม่พบสายพันธุ์ที่ค้นหา หรือยังไม่มีสถิติ — ส่งสถิติของคุณเป็นรายการแรกสิ!</div>'; return; }
+  const posClass = n => n === 1 ? 'gold' : n === 2 ? 'silver' : n === 3 ? 'bronze' : '';
   board.innerHTML = entries.map(([key, rows]) => {
     const [species, speciesTh] = key.split('|');
+    const top = rows[0];
+    const topValue = top.length_mm != null ? `${top.length_mm} mm` : top.weight_g != null ? `${top.weight_g} g` : '-';
     return `
     <div class="species-group">
       <h3>${esc(species)}</h3>
       ${speciesTh ? `<p class="th-name">${esc(speciesTh)}</p>` : ''}
-      ${rows.map(r => `
-        <div class="stat-row">
-          <span class="pos">#${r.rank_by_length}</span>
-          <span class="who"><b>${esc(r.breeder_name)}</b>${r.generation ? ' · ' + esc(r.generation) : ''}</span>
-          <span class="metrics">
-            ${r.length_mm != null ? `<b>${r.length_mm}mm</b>` : ''}${r.weight_g != null ? ` · ${r.weight_g}g` : ''}
-          </span>
-        </div>`).join('')}
+      <div class="trophy-band">
+        <i class="ph-fill ph-trophy"></i>
+        <div><div class="tt">ใหญ่ที่สุด ${topValue}</div><div class="tu">โดย ${esc(top.breeder_name)}</div></div>
+      </div>
+      <table class="rank-table">
+        <thead><tr><th>อันดับ</th><th>ผู้เพาะ</th><th>Gen.</th><th style="text-align:right">ความยาว/น้ำหนัก</th></tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td><span class="rank-pos ${posClass(r.rank_by_length)}">${r.rank_by_length}</span></td>
+              <td><b>${esc(r.breeder_name)}</b></td>
+              <td style="color:var(--text-3)">${esc(r.generation || '-')}</td>
+              <td class="num">${r.length_mm != null ? r.length_mm + 'mm' : ''}${r.weight_g != null ? ' / ' + r.weight_g + 'g' : ''}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
     </div>`;
   }).join('');
 }
