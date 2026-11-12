@@ -371,10 +371,14 @@ function renderAuthSlot() {
   const slot = $('#auth-slot');
   if (state.user && state.profile) {
     const rank = rankInfo(state.profile.rank_stage);
+    const avatar = state.profile.avatar_url
+      ? `<img src="${esc(state.profile.avatar_url)}" alt="">`
+      : `<i class="ph-fill ph-user-circle"></i>`;
     slot.innerHTML = `
-      <span class="user-chip"><i class="ph-fill ph-user-circle"></i>${esc(state.profile.display_name || state.profile.username)}</span>
+      <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>
       <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>
       <button type="button" class="btn ghost" id="logout-btn">ออกจากระบบ</button>`;
+    $('#open-profile-btn').addEventListener('click', openProfileModal);
     $('#logout-btn').addEventListener('click', handleLogout);
   } else {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
@@ -387,6 +391,78 @@ function openAuthModal(mode) {
   renderModal();
 }
 function closeModal() { $('#modal-slot').innerHTML = ''; }
+
+async function handleAvatarUpload(file) {
+  const resized = await resizeImage(file, 400, 0.85);
+  const path = `${state.user.id}/avatar.jpg`;
+  const { error: upErr } = await sb.storage.from('avatars').upload(path, resized, {
+    contentType: 'image/jpeg', cacheControl: '3600', upsert: true,
+  });
+  if (upErr) throw upErr;
+  const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+  const bustUrl = `${pub.publicUrl}?t=${Date.now()}`;
+  const { error: updErr } = await sb.from('profiles').update({ avatar_url: bustUrl }).eq('id', state.user.id);
+  if (updErr) throw updErr;
+}
+
+function openProfileModal() {
+  const p = state.profile;
+  const rank = rankInfo(p.rank_stage);
+  const avatarImg = p.avatar_url ? `<img src="${esc(p.avatar_url)}" alt="">` : `<i class="ph-fill ph-user-circle"></i>`;
+  $('#modal-slot').innerHTML = `
+  <div class="modal-overlay" id="profile-overlay">
+    <div class="modal">
+      <button type="button" class="close" id="profile-close">&times;</button>
+      <h3>โปรไฟล์ของฉัน</h3>
+      <div class="profile-avatar-row">
+        <label class="profile-avatar" id="avatar-preview-wrap">${avatarImg}<span class="edit-badge"><i class="ph-fill ph-camera"></i></span><input type="file" id="avatar-file" accept="image/*" style="display:none"></label>
+        <div>
+          <div style="font-weight:600">${esc(p.display_name || p.username)}</div>
+          <span class="rank-chip" title="${esc(p.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label} · ${p.points} แต้ม</span>
+        </div>
+      </div>
+      <form id="profile-form">
+        <label for="pf-pagename">ชื่อเพจ/ฟาร์ม *</label><input id="pf-pagename" required maxlength="40" value="${esc(p.page_name || '')}">
+        <label for="pf-line">Line ID</label><input id="pf-line" maxlength="40" value="${esc(p.line_id || '')}">
+        <label for="pf-facebook">ลิงก์ Facebook</label><input id="pf-facebook" type="url" maxlength="200" value="${esc(p.facebook_url || '')}">
+        <div class="err" id="profile-err"></div>
+        <div class="modal-actions"><button type="submit" class="btn primary" id="profile-submit" style="flex:1">บันทึก</button></div>
+      </form>
+    </div>
+  </div>`;
+  $('#profile-close').addEventListener('click', closeModal);
+  $('#profile-overlay').addEventListener('click', e => { if (e.target.id === 'profile-overlay') closeModal(); });
+  $('#avatar-file').addEventListener('change', async () => {
+    const file = $('#avatar-file').files[0];
+    if (!file) return;
+    const errEl = $('#profile-err');
+    errEl.textContent = '';
+    try {
+      await handleAvatarUpload(file);
+      await refreshSession();
+      openProfileModal();
+    } catch (err) {
+      errEl.textContent = 'อัปโหลดรูปไม่สำเร็จ: ' + err.message;
+    }
+  });
+  $('#profile-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errEl = $('#profile-err');
+    const submitBtn = $('#profile-submit');
+    const pageName = $('#pf-pagename').value.trim();
+    if (!pageName) { errEl.textContent = 'กรอกชื่อเพจ/ฟาร์มก่อนครับ'; return; }
+    submitBtn.disabled = true;
+    try {
+      await handleCompleteProfile(state.user.id, pageName, $('#pf-line').value.trim(), $('#pf-facebook').value.trim());
+      closeModal();
+      toast('บันทึกโปรไฟล์แล้ว');
+      refreshSession();
+    } catch (err) {
+      errEl.textContent = err.message || 'บันทึกไม่สำเร็จ';
+      submitBtn.disabled = false;
+    }
+  });
+}
 
 function openCompleteProfileModal() {
   $('#modal-slot').innerHTML = `
