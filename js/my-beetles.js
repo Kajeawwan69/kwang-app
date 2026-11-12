@@ -621,6 +621,9 @@ window.addEventListener('profile-updated', () => {
   const overviewTab = document.querySelector('.tab[data-tab="overview"]');
   if (overviewTab && overviewTab.classList.contains('active')) go('overview');
 });
+/* รีเฟรชภาพรวมทุกครั้งที่กดกลับมาแท็บนี้ กันข้อมูลค้างหลังเพิ่ม/แก้ไข/ลบด้วง */
+const overviewTabBtn = document.querySelector('.tab[data-tab="overview"]');
+if (overviewTabBtn) overviewTabBtn.addEventListener('click', () => go('overview'));
 go('overview');
 go('list');
 
