@@ -312,6 +312,17 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
 .mb-empty a{color:var(--leaf-deep);font-weight:600}
 .mb-empty:last-child{margin-bottom:0}
 
+.fc-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--chitin,#6d4f00);margin-bottom:10px}
+.fc-head i{color:var(--gold)}
+.fc-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;
+  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.fc-row::-webkit-scrollbar{display:none}
+.fc-card{flex:0 0 auto;width:140px;background:var(--surface);border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border));
+  border-radius:14px;padding:12px;scroll-snap-align:start;box-shadow:0 1px 2px rgba(16,22,15,.04)}
+.fc-sp{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-sp-th{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.fc-val{font-size:16px;font-weight:700;color:var(--leaf-deep);margin-top:8px;font-variant-numeric:tabular-nums}
+.fc-by{font-size:11px;color:var(--text-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .composer{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 1px 2px rgba(16,22,15,.04)}
 .composer textarea{width:100%;border:none;resize:none;font:inherit;color:var(--text);outline:none;min-height:44px}
 .composer .row{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
@@ -429,6 +440,7 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
     </main>
 
     <main id="pane-feed" style="display:none">
+      <div id="feed-champions"></div>
       <div id="composer-slot"></div>
       <div id="feed">
         <div class="loading">กำลังโหลดโพสต์...</div>

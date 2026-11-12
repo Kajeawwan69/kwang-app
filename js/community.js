@@ -657,6 +657,33 @@ async function loadWorldStats() {
   worldStats = data || [];
   worldLoaded = true;
   renderWorldBoard();
+  renderFeedChampions();
+}
+
+function renderFeedChampions() {
+  const box = $('#feed-champions');
+  if (!box) return;
+  const champs = worldStats
+    .filter(s => s.rank_by_length === 1)
+    .sort((a, b) => a.species.localeCompare(b.species));
+  if (!champs.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <div class="fc-head"><i class="ph-fill ph-trophy"></i>แชมป์แต่ละสายพันธุ์ (${champs.length})<button type="button" class="mb-collapse-btn" id="fc-collapse"><i class="ph ph-caret-up"></i></button></div>
+    <div class="fc-row" id="fc-row">
+      ${champs.map(c => `
+        <div class="fc-card">
+          <div class="fc-sp">${esc(c.species)}</div>
+          ${c.species_th ? `<div class="fc-sp-th">${esc(c.species_th)}</div>` : ''}
+          <div class="fc-val">${c.length_mm != null ? c.length_mm + 'mm' : c.weight_g != null ? c.weight_g + 'g' : '-'}</div>
+          <div class="fc-by">${esc(c.breeder_name)}</div>
+        </div>`).join('')}
+    </div>`;
+  $('#fc-collapse').addEventListener('click', () => {
+    const row = $('#fc-row');
+    const isOpen = row.style.display !== 'none';
+    row.style.display = isOpen ? 'none' : '';
+    $('#fc-collapse').classList.toggle('closed', isOpen);
+  });
 }
 
 function renderWorldBoard() {
