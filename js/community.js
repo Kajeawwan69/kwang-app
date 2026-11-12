@@ -134,7 +134,7 @@ async function loadFeed() {
   const feedEl = $('#feed');
   const { data: posts, error } = await sb
     .from('posts')
-    .select('id,caption,image_url,created_at,author_id,profiles(username,display_name)')
+    .select('id,caption,image_url,created_at,author_id,profiles!posts_author_id_fkey(username,display_name)')
     .order('created_at', { ascending: false })
     .limit(30);
   if (error) { feedEl.innerHTML = `<div class="empty">โหลดฟีดไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
