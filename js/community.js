@@ -157,9 +157,13 @@ async function handleSignup(email, password, username, pageName, lineId, faceboo
 }
 
 async function handleCompleteProfile(userId, pageName, lineId, facebookUrl) {
-  const { error } = await sb.from('profiles').update({
-    page_name: pageName, line_id: lineId || null, facebook_url: facebookUrl || null,
-  }).eq('id', userId);
+  const update = { page_name: pageName, line_id: lineId || null, facebook_url: facebookUrl || null };
+  if (!state.profile.rank_species) {
+    const [species, speciesTh] = randomSpecies();
+    update.rank_species = species;
+    update.rank_species_th = speciesTh;
+  }
+  const { error } = await sb.from('profiles').update(update).eq('id', userId);
   if (error) throw error;
 }
 
