@@ -376,10 +376,8 @@ function renderAuthSlot() {
       : `<i class="ph-fill ph-user-circle"></i>`;
     slot.innerHTML = `
       <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>
-      <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>
-      <button type="button" class="btn ghost" id="logout-btn">ออกจากระบบ</button>`;
+      <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>`;
     $('#open-profile-btn').addEventListener('click', openProfileModal);
-    $('#logout-btn').addEventListener('click', handleLogout);
   } else {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
     $('#login-btn').addEventListener('click', () => openAuthModal('login'));
@@ -428,10 +426,12 @@ function openProfileModal() {
         <div class="err" id="profile-err"></div>
         <div class="modal-actions"><button type="submit" class="btn primary" id="profile-submit" style="flex:1">บันทึก</button></div>
       </form>
+      <button type="button" class="logout-link" id="logout-btn"><i class="ph-fill ph-sign-out"></i>ออกจากระบบ</button>
     </div>
   </div>`;
   $('#profile-close').addEventListener('click', closeModal);
   $('#profile-overlay').addEventListener('click', e => { if (e.target.id === 'profile-overlay') closeModal(); });
+  $('#logout-btn').addEventListener('click', () => { closeModal(); handleLogout(); });
   $('#avatar-file').addEventListener('change', async () => {
     const file = $('#avatar-file').files[0];
     if (!file) return;
