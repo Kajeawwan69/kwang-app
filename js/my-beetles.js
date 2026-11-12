@@ -311,21 +311,37 @@ async function renderOverview(root) {
     </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
-      <h3><i class="ph-fill ph-bell-ringing"></i>ต้องดูแลวันนี้ (${due.length})</h3>
-      ${due.slice(0, 8).map(({ b, t }) => `
-        <div class="mb-due-item" data-id="${b.id}" role="button" tabindex="0">
-          <i class="ph-fill ${t.icon}"></i>
-          <div class="who">${t.label}${t.over > 0 ? ` <span class="over">· เกิน ${t.over} วัน</span>` : ''}<small>ล่าสุด ${fmtDate(t.lastDate)}</small></div>
-          <span class="code">${esc(beetleTitle(b))}</span>
-        </div>`).join('')}
+      <h3><i class="ph-fill ph-bell-ringing"></i>ต้องดูแลวันนี้ (${due.length})<button type="button" class="mb-collapse-btn" data-target="mb-due-body"><i class="ph ph-caret-up"></i></button></h3>
+      <div id="mb-due-body">
+        ${due.slice(0, 8).map(({ b, t }) => `
+          <div class="mb-due-item" data-id="${b.id}" role="button" tabindex="0">
+            <i class="ph-fill ${t.icon}"></i>
+            <div class="who">${t.label}${t.over > 0 ? ` <span class="over">· เกิน ${t.over} วัน</span>` : ''}<small>ล่าสุด ${fmtDate(t.lastDate)}</small></div>
+            <span class="code">${esc(beetleTitle(b))}</span>
+          </div>`).join('')}
+      </div>
     </div>`}
-    <div class="mb-list-head"><h3>บันทึกล่าสุด</h3>${beetles.length ? `<button type="button" class="mb-link" id="mb-see-all">ดูทั้งหมด</button>` : ''}</div>
-    ${recent.length === 0
-      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ</p><button type="button" class="btn primary" id="mb-empty-add"><i class="ph-fill ph-plus"></i>บันทึกด้วงตัวแรก</button></div>`
-      : `<div class="mb-cards">${recent.map(beetleCardHTML).join('')}</div>`}`;
+    <div class="mb-list-head">
+      <h3>บันทึกล่าสุด</h3>
+      ${beetles.length ? `<button type="button" class="mb-link" id="mb-see-all">ดูทั้งหมด</button>` : ''}
+      <button type="button" class="mb-collapse-btn" data-target="mb-recent-body"><i class="ph ph-caret-up"></i></button>
+    </div>
+    <div id="mb-recent-body">
+      ${recent.length === 0
+        ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ</p><button type="button" class="btn primary" id="mb-empty-add"><i class="ph-fill ph-plus"></i>บันทึกด้วงตัวแรก</button></div>`
+        : `<div class="mb-cards">${recent.map(beetleCardHTML).join('')}</div>`}
+    </div>`;
 
   root.querySelectorAll('.mb-due-item, .mb-card').forEach(el =>
     el.addEventListener('click', () => goToBeetle(el.dataset.id)));
+  root.querySelectorAll('.mb-collapse-btn').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const target = document.getElementById(btn.dataset.target);
+      const isOpen = target.style.display !== 'none';
+      target.style.display = isOpen ? 'none' : '';
+      btn.classList.toggle('closed', isOpen);
+    }));
   const emptyAdd = $('#mb-empty-add');
   if (emptyAdd) emptyAdd.addEventListener('click', goAdd);
   loadWeather();

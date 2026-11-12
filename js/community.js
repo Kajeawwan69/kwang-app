@@ -824,7 +824,13 @@ async function handleStatSubmit(e) {
 }
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab').forEach(t => {
+    const isActive = t.dataset.tab === tab;
+    t.classList.toggle('active', isActive);
+    const icon = t.querySelector('i');
+    icon.classList.toggle('ph-fill', isActive);
+    icon.classList.toggle('ph', !isActive);
+  });
   ['overview', 'ranking', 'feed', 'mybeetles', 'auction', 'care'].forEach(name => {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });
