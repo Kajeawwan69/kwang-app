@@ -85,7 +85,7 @@ main{padding:24px 0 64px}
   .world-content{padding:0 36px}
   #stats-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;align-items:start}
   .species-group{margin-bottom:0}
-  #pane-feed{max-width:640px}
+  .feed-inner{max-width:640px;margin:0 auto}
   .tabs{flex-direction:column;gap:2px;overflow:visible;padding-top:18px}
   .tab{margin-right:0;padding:10px 12px;border-bottom:none;border-left:3px solid transparent;border-radius:0 10px 10px 0;justify-content:flex-start}
   .tab.active{background:var(--surface-2);border-left-color:var(--copper)}
@@ -456,9 +456,11 @@ button.mb-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,22
 
     <main id="pane-feed" style="display:none">
       <div id="feed-champions"></div>
-      <div id="composer-slot"></div>
-      <div id="feed">
-        <div class="loading">กำลังโหลดโพสต์...</div>
+      <div class="feed-inner">
+        <div id="composer-slot"></div>
+        <div id="feed">
+          <div class="loading">กำลังโหลดโพสต์...</div>
+        </div>
       </div>
     </main>
 
