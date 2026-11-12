@@ -197,20 +197,16 @@ async function go(view, arg) {
 function loadWeather() {
   const box = $('#mb-wx-body');
   if (!box) return;
-  const placeEl = $('#mb-env-place'), timeEl = $('#mb-env-time');
 
   const show = (t, h, place) => {
     const tOk = t >= IDEAL.tMin && t <= IDEAL.tMax;
     const hOk = h >= IDEAL.hMin && h <= IDEAL.hMax;
-    if (placeEl) placeEl.textContent = place || 'ตำแหน่งของคุณ';
-    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const tNote = tOk ? `อยู่ในช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : t > IDEAL.tMax ? `สูงกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : `ต่ำกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C`;
+    const hNote = hOk ? `อยู่ในช่วงเหมาะ ${IDEAL.hMin}–${IDEAL.hMax}%` : h > IDEAL.hMax ? 'ชื้นเกิน เสี่ยงเชื้อราในกล่องดักแด้' : 'แห้งเกิน ควรพ่นน้ำเพิ่ม';
     box.innerHTML = `
-      <div class="mb-env">
-        <div class="mb-env-tile"><div class="row"><i class="ph-fill ph-thermometer-simple" style="color:#d13a4a"></i><span class="val">${t.toFixed(1)}°</span></div>
-          <div class="note">${tOk ? `อยู่ในช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : t > IDEAL.tMax ? `สูงกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : `ต่ำกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C`}</div></div>
-        <div class="mb-env-tile"><div class="row"><i class="ph-fill ph-drop" style="color:#1976d2"></i><span class="val">${Math.round(h)}%</span></div>
-          <div class="note">${hOk ? `อยู่ในช่วงเหมาะ ${IDEAL.hMin}–${IDEAL.hMax}%` : h > IDEAL.hMax ? 'ชื้นเกิน เสี่ยงเชื้อราในกล่องดักแด้' : 'แห้งเกิน ควรพ่นน้ำเพิ่ม'}</div></div>
-      </div>`;
+      <span class="mb-wx-place" title="${esc(place || '')}"><i class="ph-fill ph-map-pin"></i>${esc(place || 'ตำแหน่งของคุณ')}</span>
+      <span class="mb-wx-chip ${tOk ? 'ok' : 'warn'}" title="${esc(tNote)}"><i class="ph-fill ph-thermometer-simple"></i>${t.toFixed(1)}°</span>
+      <span class="mb-wx-chip ${hOk ? 'ok' : 'warn'}" title="${esc(hNote)}"><i class="ph-fill ph-drop"></i>${Math.round(h)}%</span>`;
   };
 
   const retryPrompt = msg => {
@@ -276,7 +272,7 @@ async function renderOverview(root) {
     .sort((a, b) => stagePriority.indexOf(a.stage) - stagePriority.indexOf(b.stage))[0];
 
   const profile = window.getCurrentProfile && window.getCurrentProfile();
-  let profileHeadHTML = '';
+  let profileInnerHTML = '';
   if (profile) {
     const stage = stageOf(profile.rank_stage || 'egg');
     const idx = RANK_ORDER.indexOf(profile.rank_stage || 'egg');
@@ -285,8 +281,7 @@ async function renderOverview(root) {
     const nextMin = nextStage ? RANK_THRESHOLDS[nextStage] : null;
     const points = profile.points || 0;
     const pct = nextMin ? Math.max(0, Math.min(100, Math.round((points - curMin) / (nextMin - curMin) * 100))) : 100;
-    profileHeadHTML = `
-    <div class="mb-profile-head">
+    profileInnerHTML = `
       <div class="mb-profile-avatar">${profile.avatar_url ? `<img src="${esc(profile.avatar_url)}" alt="">` : '<i class="ph-fill ph-user-circle"></i>'}</div>
       <div class="mb-profile-info">
         <b>${esc(profile.display_name || profile.username)}</b>
@@ -295,9 +290,13 @@ async function renderOverview(root) {
           <span class="mb-lv">Lv.${points}</span>
         </div>
         <div class="mb-power-bar"><div class="mb-power-fill" style="width:${pct}%"></div></div>
-      </div>
-    </div>`;
+      </div>`;
   }
+  const profileHeadHTML = `
+    <div class="mb-profile-head">
+      ${profileInnerHTML}
+      <div class="mb-profile-wx" id="mb-wx-body"><span class="mb-wx-note">กำลังโหลดสภาพอากาศ...</span></div>
+    </div>`;
 
   root.innerHTML = `
     ${profileHeadHTML}
@@ -310,10 +309,6 @@ async function renderOverview(root) {
       <button type="button" class="mb-tile accent-copper" data-go="all"><i class="ph-fill ph-dna"></i><div><b>${spSet.size}</b><span>สายพันธุ์</span></div></button>
       <button type="button" class="mb-tile accent-gold" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
       <button type="button" class="mb-tile accent-trophy" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
-    </div>
-    <div class="mb-env-card">
-      <div class="mb-env-head"><i class="ph-fill ph-map-pin"></i><span id="mb-env-place">ตำแหน่งและสภาพอากาศ</span><span id="mb-env-time"></span></div>
-      <div id="mb-wx-body"><p class="mb-wx-note">กำลังโหลด...</p></div>
     </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
