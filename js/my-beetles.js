@@ -359,7 +359,7 @@ function beetleCardHTML(b) {
       <div class="mb-card-photo">
         <div class="mb-card-glow"></div>
         ${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}
-        <div class="mb-card-shine"></div>
+        <div class="mb-card-accent"></div>
         <span class="mb-card-badge ${stage.cls}">${esc(stage.label)}</span>
         <i class="mb-card-sex ph-fill ${sexIcon(b.sex)}"></i>
       </div>
