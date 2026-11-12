@@ -679,6 +679,17 @@ function renderWorldBoard() {
     return;
   }
   const posClass = n => n === 1 ? 'gold' : n === 2 ? 'silver' : n === 3 ? 'bronze' : '';
+  const detailFields = r => {
+    const out = [];
+    if (r.duration_months) out.push(['ระยะเวลาเลี้ยง', r.duration_months + ' เดือน']);
+    if (r.temperature) out.push(['อุณหภูมิ', r.temperature]);
+    if (r.container) out.push(['ขนาดกระปุก', r.container]);
+    if (r.mat) out.push(['วัสดุรอง (Mat)', r.mat]);
+    if (r.kinshi) out.push(['เชื้อเห็ด (Kinshi)', r.kinshi]);
+    if (r.registration_date) out.push(['วันที่ลงทะเบียน', r.registration_date]);
+    if (r.remarks) out.push(['หมายเหตุ', r.remarks]);
+    return out;
+  };
   board.innerHTML = entries.map(([key, rows]) => {
     const [species, speciesTh] = key.split('|');
     const top = rows[0];
@@ -692,19 +703,40 @@ function renderWorldBoard() {
         <div><div class="tt">ใหญ่ที่สุด ${topValue}</div><div class="tu">โดย ${esc(top.breeder_name)}</div></div>
       </div>
       <table class="rank-table">
-        <thead><tr><th>อันดับ</th><th>ผู้เพาะ</th><th>Gen.</th><th style="text-align:right">ความยาว/น้ำหนัก</th></tr></thead>
+        <thead><tr><th>อันดับ</th><th>ผู้เพาะ</th><th>Gen.</th><th style="text-align:right">ความยาว/น้ำหนัก</th><th></th></tr></thead>
         <tbody>
-          ${rows.map(r => `
-            <tr>
+          ${rows.map(r => {
+            const fields = detailFields(r);
+            return `
+            <tr class="rank-row-main" data-id="${r.id}">
               <td><span class="rank-pos ${posClass(r.rank_by_length)}">${r.rank_by_length}</span></td>
               <td><b>${esc(r.breeder_name)}</b></td>
               <td style="color:var(--text-3)">${esc(r.generation || '-')}</td>
               <td class="num">${r.length_mm != null ? r.length_mm + 'mm' : ''}${r.weight_g != null ? ' / ' + r.weight_g + 'g' : ''}</td>
-            </tr>`).join('')}
+              <td class="rank-caret"><i class="ph-fill ph-caret-down"></i></td>
+            </tr>
+            <tr class="rank-detail" id="rank-detail-${r.id}" style="display:none">
+              <td colspan="5">
+                ${fields.length === 0 && !r.image_url ? '<p class="rank-detail-empty">ไม่มีข้อมูลเพิ่มเติม</p>' : `
+                <div class="rank-detail-grid">
+                  ${fields.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
+                </div>
+                ${r.image_url ? `<a href="${esc(r.image_url)}" target="_blank" rel="noopener" class="rank-detail-img"><i class="ph-fill ph-image"></i>ดูรูปภาพ</a>` : ''}`}
+              </td>
+            </tr>`;
+          }).join('')}
         </tbody>
       </table>
     </div>`;
   }).join('');
+  board.querySelectorAll('.rank-row-main').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const detail = document.getElementById('rank-detail-' + tr.dataset.id);
+      const isOpen = detail.style.display !== 'none';
+      detail.style.display = isOpen ? 'none' : 'table-row';
+      tr.classList.toggle('open', !isOpen);
+    });
+  });
 }
 
 function renderStatsButton() {
