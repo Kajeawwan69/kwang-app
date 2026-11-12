@@ -4,6 +4,31 @@
 
 const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
+const RANK_SPECIES = [
+  ['Dynastes hercules', 'เฮอร์คิวลิส'],
+  ['Dynastes neptunus', 'เนปจูน'],
+  ['Chalcosoma caucasus', 'คอเคซัส'],
+  ['Chalcosoma atlas', 'แอตลาส'],
+  ['Xylotrupes gideon', 'กว่างชน'],
+  ['Eupatorus gracilicornis', 'กว่างห้าเขา'],
+  ['Allomyrina dichotoma', 'คาบูโตะ'],
+  ['Dorcus titanus palawanicus', 'ปาลาวัน'],
+  ['Prosopocoilus giraffa', 'คีมยีราฟ'],
+  ['Phalacrognathus muelleri', 'คีมสายรุ้ง'],
+  ['Mecynorrhina torquata', 'ด้วงดอกไม้ยักษ์'],
+];
+const randomSpecies = () => RANK_SPECIES[Math.floor(Math.random() * RANK_SPECIES.length)];
+
+const RANK_STAGES = {
+  egg:   { icon: 'ph-egg-crack', label: 'ไข่ด้วง' },
+  l1:    { icon: 'ph-bug', label: 'หนอน L1' },
+  l2:    { icon: 'ph-bug', label: 'หนอน L2' },
+  l3:    { icon: 'ph-bug', label: 'หนอน L3' },
+  pupa:  { icon: 'ph-leaf', label: 'ดักแด้' },
+  adult: { icon: 'ph-trophy', label: 'ตัวเต็มวัย' },
+};
+const rankInfo = stage => RANK_STAGES[stage] || RANK_STAGES.egg;
+
 const $ = sel => document.querySelector(sel);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -79,10 +104,13 @@ async function ensureProfile(user) {
   const meta = user.user_metadata || {};
   const base = (meta.full_name || meta.name || (user.email || 'user').split('@')[0])
     .toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 20) || 'user';
+  const [species, speciesTh] = randomSpecies();
   let username = base;
   for (let attempt = 0; attempt < 5; attempt++) {
     const { error } = await sb.from('profiles').insert({
-      id: user.id, username, display_name: meta.full_name || meta.name || username, avatar_url: meta.avatar_url || meta.picture || null,
+      id: user.id, username, display_name: meta.full_name || meta.name || username,
+      avatar_url: meta.avatar_url || meta.picture || null,
+      rank_species: species, rank_species_th: speciesTh,
     });
     if (!error) return;
     if (!String(error.message).includes('duplicate')) throw error;
@@ -94,10 +122,10 @@ async function refreshSession() {
   const { data: { session } } = await sb.auth.getSession();
   state.user = session ? session.user : null;
   if (state.user) {
-    let { data } = await sb.from('profiles').select('*').eq('id', state.user.id).maybeSingle();
+    let { data } = await sb.from('profile_ranks').select('*').eq('id', state.user.id).maybeSingle();
     if (!data) {
       await ensureProfile(state.user);
-      ({ data } = await sb.from('profiles').select('*').eq('id', state.user.id).maybeSingle());
+      ({ data } = await sb.from('profile_ranks').select('*').eq('id', state.user.id).maybeSingle());
     }
     state.profile = data || null;
   } else {
@@ -105,6 +133,7 @@ async function refreshSession() {
   }
   renderAuthSlot();
   renderComposer();
+  if (state.profile && !state.profile.page_name) openCompleteProfileModal();
 }
 
 sb.auth.onAuthStateChange(() => refreshSession());
@@ -114,12 +143,24 @@ async function handleLogin(email, password) {
   if (error) throw error;
 }
 
-async function handleSignup(email, password, username) {
+async function handleSignup(email, password, username, pageName, lineId, facebookUrl) {
   const { data, error } = await sb.auth.signUp({ email, password });
   if (error) throw error;
   if (!data.session) throw new Error('สมัครสำเร็จ แต่ยังไม่มี session — ถ้าโปรเจกต์เปิด "Confirm email" ไว้ ให้ไปปิดในหน้า Auth settings ก่อนทดสอบ');
-  const { error: profErr } = await sb.from('profiles').insert({ id: data.user.id, username, display_name: username });
+  const [species, speciesTh] = randomSpecies();
+  const { error: profErr } = await sb.from('profiles').insert({
+    id: data.user.id, username, display_name: username,
+    page_name: pageName, line_id: lineId || null, facebook_url: facebookUrl || null,
+    rank_species: species, rank_species_th: speciesTh,
+  });
   if (profErr) throw new Error(profErr.message.includes('duplicate') ? 'ชื่อผู้ใช้นี้มีคนใช้แล้ว' : profErr.message);
+}
+
+async function handleCompleteProfile(userId, pageName, lineId, facebookUrl) {
+  const { error } = await sb.from('profiles').update({
+    page_name: pageName, line_id: lineId || null, facebook_url: facebookUrl || null,
+  }).eq('id', userId);
+  if (error) throw error;
 }
 
 async function handleGoogleLogin() {
@@ -325,8 +366,10 @@ async function handlePostSubmit(e) {
 function renderAuthSlot() {
   const slot = $('#auth-slot');
   if (state.user && state.profile) {
+    const rank = rankInfo(state.profile.rank_stage);
     slot.innerHTML = `
       <span class="user-chip"><i class="ph-fill ph-user-circle"></i>${esc(state.profile.display_name || state.profile.username)}</span>
+      <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>
       <button type="button" class="btn ghost" id="logout-btn">ออกจากระบบ</button>`;
     $('#logout-btn').addEventListener('click', handleLogout);
   } else {
@@ -341,6 +384,43 @@ function openAuthModal(mode) {
 }
 function closeModal() { $('#modal-slot').innerHTML = ''; }
 
+function openCompleteProfileModal() {
+  $('#modal-slot').innerHTML = `
+  <div class="modal-overlay" id="complete-profile-overlay">
+    <div class="modal">
+      <button type="button" class="close" id="complete-profile-close">&times;</button>
+      <h3>เติมโปรไฟล์ให้ครบ</h3>
+      <p class="sub">บอกชุมชนหน่อยว่าคุณคือใคร</p>
+      <form id="complete-profile-form">
+        <label for="cp-pagename">ชื่อเพจ/ฟาร์ม *</label><input id="cp-pagename" required maxlength="40">
+        <label for="cp-line">Line ID (ไม่บังคับ)</label><input id="cp-line" maxlength="40">
+        <label for="cp-facebook">ลิงก์ Facebook (ไม่บังคับ)</label><input id="cp-facebook" type="url" maxlength="200">
+        <div class="err" id="complete-profile-err"></div>
+        <div class="modal-actions"><button type="submit" class="btn primary" id="complete-profile-submit" style="flex:1">บันทึก</button></div>
+      </form>
+    </div>
+  </div>`;
+  $('#complete-profile-close').addEventListener('click', closeModal);
+  $('#complete-profile-overlay').addEventListener('click', e => { if (e.target.id === 'complete-profile-overlay') closeModal(); });
+  $('#complete-profile-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errEl = $('#complete-profile-err');
+    const submitBtn = $('#complete-profile-submit');
+    const pageName = $('#cp-pagename').value.trim();
+    if (!pageName) { errEl.textContent = 'กรอกชื่อเพจ/ฟาร์มก่อนครับ'; return; }
+    submitBtn.disabled = true;
+    try {
+      await handleCompleteProfile(state.user.id, pageName, $('#cp-line').value.trim(), $('#cp-facebook').value.trim());
+      closeModal();
+      toast('บันทึกโปรไฟล์แล้ว');
+      refreshSession();
+    } catch (err) {
+      errEl.textContent = err.message || 'บันทึกไม่สำเร็จ';
+      submitBtn.disabled = false;
+    }
+  });
+}
+
 function renderModal() {
   const isLogin = state.authMode === 'login';
   $('#modal-slot').innerHTML = `
@@ -354,9 +434,14 @@ function renderModal() {
       </button>
       <div class="divider"><span>หรือใช้อีเมล</span></div>
       <form id="auth-form">
-        ${isLogin ? '' : `<label for="f-username">ชื่อผู้ใช้</label><input id="f-username" required maxlength="24">`}
+        ${isLogin ? '' : `
+        <label for="f-username">ชื่อผู้ใช้ *</label><input id="f-username" required maxlength="24">
+        <label for="f-pagename">ชื่อเพจ/ฟาร์ม *</label><input id="f-pagename" required maxlength="40">`}
         <label for="f-email">อีเมล</label><input id="f-email" type="email" required>
         <label for="f-password">รหัสผ่าน</label><input id="f-password" type="password" required minlength="6">
+        ${isLogin ? '' : `
+        <label for="f-line">Line ID (ไม่บังคับ)</label><input id="f-line" maxlength="40">
+        <label for="f-facebook">ลิงก์ Facebook (ไม่บังคับ)</label><input id="f-facebook" type="url" maxlength="200">`}
         <div class="err" id="auth-err"></div>
         <div class="modal-actions">
           <button type="submit" class="btn primary" id="auth-submit">${isLogin ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}</button>
@@ -388,7 +473,10 @@ function renderModal() {
         await handleLogin(email, password);
       } else {
         const username = $('#f-username').value.trim();
-        await handleSignup(email, password, username);
+        const pageName = $('#f-pagename').value.trim();
+        const lineId = $('#f-line').value.trim();
+        const facebookUrl = $('#f-facebook').value.trim();
+        await handleSignup(email, password, username, pageName, lineId, facebookUrl);
       }
       closeModal();
       toast(isLogin ? 'เข้าสู่ระบบแล้ว' : 'สมัครสมาชิกสำเร็จ');
