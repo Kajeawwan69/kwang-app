@@ -375,9 +375,11 @@ function renderAuthSlot() {
       ? `<img src="${esc(state.profile.avatar_url)}" alt="">`
       : `<i class="ph-fill ph-user-circle"></i>`;
     slot.innerHTML = `
+      ${state.profile.role === 'admin' ? `<button type="button" class="btn ghost" id="admin-btn"><i class="ph-fill ph-shield-check"></i>Admin</button>` : ''}
       <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>
       <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>`;
     $('#open-profile-btn').addEventListener('click', openProfileModal);
+    if (state.profile.role === 'admin') $('#admin-btn').addEventListener('click', openAdminModal);
   } else {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
     $('#login-btn').addEventListener('click', () => openAuthModal('login'));
@@ -461,6 +463,69 @@ function openProfileModal() {
       errEl.textContent = err.message || 'บันทึกไม่สำเร็จ';
       submitBtn.disabled = false;
     }
+  });
+}
+
+async function openAdminModal() {
+  $('#modal-slot').innerHTML = `
+  <div class="modal-overlay" id="admin-overlay">
+    <div class="modal" style="max-width:720px">
+      <button type="button" class="close" id="admin-close">&times;</button>
+      <h3>แผงควบคุมผู้ดูแล</h3>
+      <div id="admin-body"><div class="loading">กำลังโหลด...</div></div>
+    </div>
+  </div>`;
+  $('#admin-close').addEventListener('click', closeModal);
+  $('#admin-overlay').addEventListener('click', e => { if (e.target.id === 'admin-overlay') closeModal(); });
+  await loadAdminData();
+}
+
+async function loadAdminData() {
+  const body = $('#admin-body');
+  const { data, error } = await sb.from('profile_ranks').select('*').order('created_at', { ascending: false });
+  if (error) { body.innerHTML = `<div class="empty">โหลดไม่สำเร็จ: ${esc(error.message)}</div>`; return; }
+  renderAdminBody(data || []);
+}
+
+function renderAdminBody(members) {
+  const body = $('#admin-body');
+  const counts = {};
+  members.forEach(m => { counts[m.rank_stage] = (counts[m.rank_stage] || 0) + 1; });
+  const summary = Object.keys(RANK_STAGES).map(stage =>
+    `<span class="admin-count"><i class="ph-fill ${RANK_STAGES[stage].icon}"></i>${RANK_STAGES[stage].label}: ${counts[stage] || 0}</span>`
+  ).join('');
+  body.innerHTML = `
+    <p class="sub">ทั้งหมด ${members.length} คน</p>
+    <div class="admin-summary">${summary}</div>
+    <table class="rank-table admin-table">
+      <thead><tr><th>ชื่อ</th><th>เพจ</th><th>ยศ</th><th>แต้ม</th><th>สิทธิ์</th></tr></thead>
+      <tbody>
+        ${members.map(m => `
+          <tr>
+            <td><b>${esc(m.display_name || m.username)}</b></td>
+            <td style="color:var(--text-3)">${esc(m.page_name || '-')}</td>
+            <td>${rankInfo(m.rank_stage).label}</td>
+            <td class="num">${m.points}</td>
+            <td>
+              <select class="role-select" data-id="${m.id}" ${m.id === state.user.id ? 'disabled title="แก้สิทธิ์ของตัวเองไม่ได้"' : ''}>
+                <option value="member" ${m.role === 'member' ? 'selected' : ''}>สมาชิก</option>
+                <option value="moderator" ${m.role === 'moderator' ? 'selected' : ''}>ผู้ดูแล</option>
+                <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin ระบบ</option>
+              </select>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+  body.querySelectorAll('.role-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const targetId = sel.dataset.id;
+      const newRole = sel.value;
+      sel.disabled = true;
+      const { error } = await sb.rpc('set_user_role', { target_id: targetId, new_role: newRole });
+      sel.disabled = false;
+      if (error) { toast('เปลี่ยนสิทธิ์ไม่สำเร็จ: ' + error.message); return; }
+      toast('เปลี่ยนสิทธิ์แล้ว');
+    });
   });
 }
 
