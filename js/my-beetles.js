@@ -240,7 +240,7 @@ function beetleRowHTML(b) {
     <div class="mb-row" data-id="${b.id}" role="button" tabindex="0">
       <div class="mb-thumb">${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}</div>
       <div class="mb-info">
-        <div class="mb-title"><b>${esc(beetleTitle(b))}</b><i class="ph ${sexIcon(b.sex)}"></i></div>
+        <div class="mb-title"><b>${esc(beetleTitle(b))}</b><i class="ph-fill ${sexIcon(b.sex)}"></i></div>
         <small>${esc(beetleSub(b))}</small>
         ${beetleMeas(b) ? `<span class="mb-meas">${esc(beetleMeas(b))}</span>` : ''}
       </div>
@@ -283,7 +283,7 @@ async function renderDetail(root, id) {
   const nextSt = STAGES[stIdx + 1];
 
   root.innerHTML = `
-    <button type="button" class="mb-back" id="mb-back"><i class="ph ph-arrow-left"></i>กลับ</button>
+    <button type="button" class="mb-back" id="mb-back"><i class="ph-fill ph-arrow-left"></i>กลับ</button>
     <div class="mb-detail-head">
       <div class="mb-thumb big">${b.photo ? `<img src="${b.photo}" alt="">` : '<i class="ph-fill ph-bug"></i>'}</div>
       <div>
@@ -291,7 +291,7 @@ async function renderDetail(root, id) {
         <p class="mb-sub">${esc(beetleSub(b))}</p>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <span class="mb-pill ${stageOf(b.stage).cls}">${esc(stageOf(b.stage).label)}</span>
-          <span class="mb-pill mb-pill-outline"><i class="ph ${sexIcon(b.sex)}"></i>${esc(sexLabel(b.sex))}</span>
+          <span class="mb-pill mb-pill-outline"><i class="ph-fill ${sexIcon(b.sex)}"></i>${esc(sexLabel(b.sex))}</span>
         </div>
       </div>
     </div>
@@ -304,11 +304,11 @@ async function renderDetail(root, id) {
     <p class="mb-note-line">${b.code ? `รหัส: ${esc(b.code)} · ` : ''}ได้มา ${fmtDate(b.acquiredDate)}</p>
     ${b.notes ? `<div class="mb-note-card"><b>📝 โน้ต</b><p>${esc(b.notes)}</p></div>` : ''}
     <div class="mb-qa">
-      <button type="button" class="btn" id="qa-weigh"><i class="ph ph-scales"></i>ชั่งน้ำหนัก</button>
-      <button type="button" class="btn" id="qa-sub"><i class="ph ph-bowl-food"></i>เปลี่ยนดิน</button>
-      <button type="button" class="btn" id="qa-jelly"><i class="ph ph-drop"></i>เยลลี่</button>
-      ${nextSt ? `<button type="button" class="btn" id="qa-stage"><i class="ph ph-butterfly"></i>เลื่อนเป็น ${esc(nextSt.label)}</button>` : ''}
-      <button type="button" class="btn" id="qa-note"><i class="ph ph-note-pencil"></i>เพิ่มโน้ต</button>
+      <button type="button" class="btn" id="qa-weigh"><i class="ph-fill ph-scales"></i>ชั่งน้ำหนัก</button>
+      <button type="button" class="btn" id="qa-sub"><i class="ph-fill ph-bowl-food"></i>เปลี่ยนดิน</button>
+      <button type="button" class="btn" id="qa-jelly"><i class="ph-fill ph-drop"></i>เยลลี่</button>
+      ${nextSt ? `<button type="button" class="btn" id="qa-stage"><i class="ph-fill ph-butterfly"></i>เลื่อนเป็น ${esc(nextSt.label)}</button>` : ''}
+      <button type="button" class="btn" id="qa-note"><i class="ph-fill ph-note-pencil"></i>เพิ่มโน้ต</button>
     </div>
     <h3 class="mb-tl-head">🕘 ไทม์ไลน์การเลี้ยง</h3>
     ${logs.length === 0 ? '<p class="mb-note-line">ยังไม่มีบันทึก</p>' : `<ul class="mb-tl">
@@ -321,8 +321,8 @@ async function renderDetail(root, id) {
       }).join('')}
     </ul>`}
     <div class="mb-qa" style="margin-top:16px">
-      <button type="button" class="btn" id="qa-edit"><i class="ph ph-pencil-simple"></i>แก้ไขข้อมูล</button>
-      <button type="button" class="btn danger" id="qa-del"><i class="ph ph-trash"></i>ลบด้วงตัวนี้</button>
+      <button type="button" class="btn" id="qa-edit"><i class="ph-fill ph-pencil-simple"></i>แก้ไขข้อมูล</button>
+      <button type="button" class="btn danger" id="qa-del"><i class="ph-fill ph-trash"></i>ลบด้วงตัวนี้</button>
     </div>`;
 
   $('#mb-back').addEventListener('click', () => go('list'));
@@ -375,17 +375,17 @@ async function renderForm(root, id) {
   let origin = b.source || '';
   let stageGroup = groupOfStage(stage).id;
 
-  const sexChip = v => `<button type="button" class="mb-chip" data-sex="${v}"><i class="ph ${sexIcon(v)}"></i>${esc(sexLabel(v))}</button>`;
+  const sexChip = v => `<button type="button" class="mb-chip" data-sex="${v}"><i class="ph-fill ${sexIcon(v)}"></i>${esc(sexLabel(v))}</button>`;
   const stageChip = s => `<button type="button" class="mb-chip" data-stage="${s.id}">${esc(s.label)}</button>`;
   const groupChip = g => `<button type="button" class="mb-chip" data-group="${g.id}">${esc(g.label)}</button>`;
   const originChip = o => `<button type="button" class="mb-chip" data-origin="${esc(o)}">${esc(o)}</button>`;
 
   root.innerHTML = `
-    <button type="button" class="mb-back" id="mb-back"><i class="ph ph-arrow-left"></i>กลับ</button>
+    <button type="button" class="mb-back" id="mb-back"><i class="ph-fill ph-arrow-left"></i>กลับ</button>
     <h2 class="mb-form-title">${editing ? 'แก้ไขข้อมูลด้วง' : 'บันทึกด้วงตัวใหม่'}</h2>
     <form id="mb-form">
       <div class="mb-photo-pick">
-        <div class="mb-photo-prev" id="mb-photo-prev">${photo ? `<img src="${photo}" alt="">` : '<i class="ph ph-camera"></i>'}</div>
+        <div class="mb-photo-prev" id="mb-photo-prev">${photo ? `<img src="${photo}" alt="">` : '<i class="ph-fill ph-camera"></i>'}</div>
         <label class="mb-chip" for="mb-f-photo">เลือกรูป</label>
         <input type="file" id="mb-f-photo" accept="image/*" style="display:none">
         ${photo ? `<button type="button" class="mb-chip" id="mb-photo-del">ลบรูป</button>` : ''}
@@ -459,7 +459,7 @@ async function renderForm(root, id) {
     img.src = URL.createObjectURL(f);
   });
   const pd = $('#mb-photo-del');
-  if (pd) pd.addEventListener('click', () => { photo = null; $('#mb-photo-prev').innerHTML = '<i class="ph ph-camera"></i>'; });
+  if (pd) pd.addEventListener('click', () => { photo = null; $('#mb-photo-prev').innerHTML = '<i class="ph-fill ph-camera"></i>'; });
 
   $('#mb-back').addEventListener('click', () => go(editing ? 'detail' : 'overview', editing ? editing.id : null));
   $('#mb-form').addEventListener('submit', async e => {
