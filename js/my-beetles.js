@@ -169,7 +169,7 @@ function switchToMyBeetlesTab() {
 
 /* เรียกจาก Overview เพื่อข้ามไปแท็บ "ด้วงของฉัน" พร้อมเปิดรายการ/ตัวที่เลือก */
 function goToBeetle(id) { switchToMyBeetlesTab(); go('detail', id); }
-function goToList() { switchToMyBeetlesTab(); go('list'); }
+function goToList(filter) { switchToMyBeetlesTab(); go('list', filter); }
 function goAdd() { switchToMyBeetlesTab(); go('form'); }
 
 async function go(view, arg) {
@@ -179,7 +179,7 @@ async function go(view, arg) {
   root.innerHTML = '<div class="loading">กำลังโหลด...</div>';
   try {
     if (view === 'overview') await renderOverview(root);
-    else if (view === 'list') await renderList(root);
+    else if (view === 'list') await renderList(root, arg);
     else if (view === 'detail') await renderDetail(root, state.detailId);
     else if (view === 'form') await renderForm(root, state.editId);
   } catch (err) {
@@ -208,10 +208,10 @@ async function renderOverview(root) {
 
   root.innerHTML = `
     <div class="mb-stat-tiles">
-      <div class="mb-tile"><i class="ph-fill ph-identification-card"></i><b>${beetles.length}</b><span>ตัวทั้งหมด</span></div>
-      <div class="mb-tile"><i class="ph-fill ph-dna"></i><b>${spSet.size}</b><span>สายพันธุ์</span></div>
-      <div class="mb-tile"><i class="ph-fill ph-bug"></i><b>${larvae}</b><span>หนอน</span></div>
-      <div class="mb-tile"><i class="ph-fill ph-trophy"></i><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div>
+      <button type="button" class="mb-tile" data-go="all"><i class="ph-fill ph-identification-card"></i><div><b>${beetles.length}</b><span>ตัวทั้งหมด</span></div></button>
+      <button type="button" class="mb-tile" data-go="all"><i class="ph-fill ph-dna"></i><div><b>${spSet.size}</b><span>สายพันธุ์</span></div></button>
+      <button type="button" class="mb-tile" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
+      <button type="button" class="mb-tile" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
     </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
@@ -225,13 +225,15 @@ async function renderOverview(root) {
     </div>`}
     <div class="mb-list-head"><h3>บันทึกล่าสุด</h3>${beetles.length ? `<button type="button" class="mb-link" id="mb-see-all">ดูทั้งหมด</button>` : ''}</div>
     ${recent.length === 0
-      ? `<div class="empty">ยังไม่มีด้วงในระบบ — กดปุ่ม + เพื่อบันทึกตัวแรก</div>`
+      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>ยังไม่มีด้วงในระบบ — กดปุ่ม + ด้านล่างเพื่อบันทึกตัวแรก</p></div>`
       : `<div class="mb-rows">${recent.map(beetleRowHTML).join('')}</div>`}`;
 
   root.querySelectorAll('.mb-due-item, .mb-row').forEach(el =>
     el.addEventListener('click', () => goToBeetle(el.dataset.id)));
+  root.querySelectorAll('.mb-tile[data-go]').forEach(el =>
+    el.addEventListener('click', () => goToList(el.dataset.go)));
   const seeAll = $('#mb-see-all');
-  if (seeAll) seeAll.addEventListener('click', goToList);
+  if (seeAll) seeAll.addEventListener('click', () => goToList());
 }
 
 /* ---------- list ---------- */
@@ -248,9 +250,9 @@ function beetleRowHTML(b) {
     </div>`;
 }
 
-async function renderList(root) {
+async function renderList(root, initialFilter) {
   const beetles = (await ZDB.all('beetles')).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
-  let filter = 'all', q = '';
+  let filter = FILTERS.some(f => f.id === initialFilter) ? initialFilter : 'all', q = '';
 
   root.innerHTML = `
     <input type="search" class="stats-search" id="mb-search" placeholder="ค้นหา ชื่อ/รหัส/สายพันธุ์...">
@@ -264,7 +266,7 @@ async function renderList(root) {
     const list = beetles.filter(b => f.match(b.stage) &&
       (!q || [b.name, b.code, b.species, b.bloodline, b.container].join(' ').toLowerCase().includes(q)));
     $('#mb-list-body').innerHTML = list.length === 0
-      ? `<div class="empty">${beetles.length === 0 ? 'ยังไม่มีด้วงในระบบ' : 'ไม่พบด้วงตามเงื่อนไข'}</div>`
+      ? `<div class="mb-empty"><i class="ph-fill ph-bug"></i><p>${beetles.length === 0 ? 'ยังไม่มีด้วงในระบบ' : 'ไม่พบด้วงตามเงื่อนไข'}</p></div>`
       : `<div class="mb-rows">${list.map(beetleRowHTML).join('')}</div>`;
     root.querySelectorAll('.mb-row').forEach(el => el.addEventListener('click', () => go('detail', el.dataset.id)));
     root.querySelectorAll('#mb-filters .mb-chip').forEach(c => c.classList.toggle('on', c.dataset.f === filter));
