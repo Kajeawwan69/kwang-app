@@ -85,6 +85,8 @@ const weightHintFor = stage => stage === 'adult' ? '11.4' : '38.2';
 const RANK_ORDER = ['egg', 'l1', 'l2', 'l3', 'pupa', 'adult'];
 const RANK_THRESHOLDS = { egg: 0, l1: 3, l2: 8, l3: 16, pupa: 31, adult: 51 };
 
+const IDEAL = { tMin: 24, tMax: 26, hMin: 55, hMax: 70 };
+
 function toast(msg) {
   let t = document.querySelector('.toast');
   if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
@@ -192,6 +194,64 @@ async function go(view, arg) {
 }
 
 /* ---------- overview ---------- */
+function loadWeather() {
+  const box = $('#mb-wx-body');
+  if (!box) return;
+  const placeEl = $('#mb-env-place'), timeEl = $('#mb-env-time');
+
+  const show = (t, h, place) => {
+    const tOk = t >= IDEAL.tMin && t <= IDEAL.tMax;
+    const hOk = h >= IDEAL.hMin && h <= IDEAL.hMax;
+    if (placeEl) placeEl.textContent = place || 'ตำแหน่งของคุณ';
+    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    box.innerHTML = `
+      <div class="mb-env">
+        <div class="mb-env-tile"><div class="row"><i class="ph-fill ph-thermometer-simple" style="color:#d13a4a"></i><span class="val">${t.toFixed(1)}°</span></div>
+          <div class="note">${tOk ? `อยู่ในช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : t > IDEAL.tMax ? `สูงกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C` : `ต่ำกว่าช่วงเหมาะ ${IDEAL.tMin}–${IDEAL.tMax}°C`}</div></div>
+        <div class="mb-env-tile"><div class="row"><i class="ph-fill ph-drop" style="color:#1976d2"></i><span class="val">${Math.round(h)}%</span></div>
+          <div class="note">${hOk ? `อยู่ในช่วงเหมาะ ${IDEAL.hMin}–${IDEAL.hMax}%` : h > IDEAL.hMax ? 'ชื้นเกิน เสี่ยงเชื้อราในกล่องดักแด้' : 'แห้งเกิน ควรพ่นน้ำเพิ่ม'}</div></div>
+      </div>`;
+  };
+
+  const retryPrompt = msg => {
+    box.innerHTML = `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="mb-wx-note" style="flex:1;min-width:0;margin:0">${esc(msg)}</span>
+      <button type="button" class="btn ghost" id="mb-wx-retry">อนุญาตตำแหน่ง</button>
+    </div>`;
+    const rb = $('#mb-wx-retry');
+    if (rb) rb.addEventListener('click', locate);
+  };
+
+  function locate() {
+    box.innerHTML = '<p class="mb-wx-note">กำลังอ่านตำแหน่งจากเครื่องคุณ…</p>';
+    navigator.geolocation.getCurrentPosition(async pos => {
+      try {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`);
+        const j = await r.json();
+        const t = j.current.temperature_2m, h = j.current.relative_humidity_2m;
+        let place = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+        try {
+          const gr = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=th`);
+          const gj = await gr.json();
+          const named = [gj.locality, gj.principalSubdivision].filter(Boolean).join(', ');
+          if (named) place = named;
+        } catch {}
+        try { localStorage.setItem('mb-wx', JSON.stringify({ t, h, place, at: Date.now() })); } catch {}
+        if ($('#mb-wx-body')) show(t, h, place);
+      } catch {
+        if ($('#mb-wx-body')) retryPrompt('ดึงข้อมูลอากาศไม่สำเร็จ ลองอีกครั้ง');
+      }
+    }, () => { if ($('#mb-wx-body')) retryPrompt('ยังไม่ได้อนุญาตให้เข้าถึงตำแหน่ง'); }, { timeout: 10000 });
+  }
+
+  const cached = (() => { try { return JSON.parse(localStorage.getItem('mb-wx') || 'null'); } catch { return null; } })();
+  if (cached && Date.now() - cached.at < 30 * 60 * 1000) { show(cached.t, cached.h, cached.place); return; }
+  if (cached) { locate(); return; }
+  if (!navigator.geolocation) { box.innerHTML = '<p class="mb-wx-note">อุปกรณ์นี้ไม่รองรับการระบุตำแหน่ง</p>'; return; }
+  retryPrompt('ยังไม่ได้อนุญาตให้เข้าถึงตำแหน่ง');
+}
+
 async function renderOverview(root) {
   const beetles = await ZDB.all('beetles');
   const allLogs = await ZDB.all('logs');
@@ -251,6 +311,10 @@ async function renderOverview(root) {
       <button type="button" class="mb-tile accent-gold" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
       <button type="button" class="mb-tile accent-trophy" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
     </div>
+    <div class="mb-env-card">
+      <div class="mb-env-head"><i class="ph-fill ph-map-pin"></i><span id="mb-env-place">ตำแหน่งและสภาพอากาศ</span><span id="mb-env-time"></span></div>
+      <div id="mb-wx-body"><p class="mb-wx-note">กำลังโหลด...</p></div>
+    </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
       <h3><i class="ph-fill ph-bell-ringing"></i>ต้องดูแลวันนี้ (${due.length})</h3>
@@ -270,6 +334,7 @@ async function renderOverview(root) {
     el.addEventListener('click', () => goToBeetle(el.dataset.id)));
   const emptyAdd = $('#mb-empty-add');
   if (emptyAdd) emptyAdd.addEventListener('click', goAdd);
+  loadWeather();
   root.querySelectorAll('.mb-tile[data-go]').forEach(el =>
     el.addEventListener('click', () => goToList(el.dataset.go)));
   const seeAll = $('#mb-see-all');
