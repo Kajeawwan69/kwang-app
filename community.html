@@ -75,6 +75,8 @@ main{padding:24px 0 64px}
   .tab{margin-right:0;padding:10px 12px;border-bottom:none;border-left:3px solid transparent;border-radius:0 10px 10px 0;justify-content:flex-start}
   .tab.active{background:var(--surface-2);border-left-color:var(--copper)}
 }
+.app-embed{width:100%;height:82vh;min-height:560px;border:1px solid var(--border);border-radius:16px;
+  background:var(--surface);box-shadow:0 1px 2px rgba(16,22,15,.04)}
 .coming-soon{text-align:center;padding:64px 20px;color:var(--text-3)}
 .coming-soon i{font-size:34px;color:var(--copper-deep);margin-bottom:10px;display:block}
 .coming-soon h2{font-family:var(--display);color:var(--text);margin:0 0 6px;font-size:18px}
@@ -211,6 +213,7 @@ main{padding:24px 0 64px}
     <div class="tabs" id="tabs">
       <button type="button" class="tab active" data-tab="ranking"><i class="ph-fill ph-trophy"></i>Ranking</button>
       <button type="button" class="tab" data-tab="feed"><i class="ph-fill ph-image"></i>ฟีด</button>
+      <button type="button" class="tab" data-tab="mybeetles"><i class="ph-fill ph-bug"></i>ด้วงของฉัน</button>
       <button type="button" class="tab" data-tab="auction"><i class="ph-fill ph-gavel"></i>ตลาดประมูล</button>
       <button type="button" class="tab" data-tab="care"><i class="ph-fill ph-book-open-text"></i>ข้อมูลการเลี้ยง</button>
     </div>
@@ -238,6 +241,10 @@ main{padding:24px 0 64px}
       <div id="feed">
         <div class="loading">กำลังโหลดโพสต์...</div>
       </div>
+    </main>
+
+    <main id="pane-mybeetles" style="display:none">
+      <iframe class="app-embed" id="mybeetles-frame" src="about:blank" data-src="app-beta.html" title="ด้วงของฉัน" loading="lazy"></iframe>
     </main>
 
     <main id="pane-auction" style="display:none">
