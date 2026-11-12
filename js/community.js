@@ -375,11 +375,9 @@ function renderAuthSlot() {
       ? `<img src="${esc(state.profile.avatar_url)}" alt="">`
       : `<i class="ph-fill ph-user-circle"></i>`;
     slot.innerHTML = `
-      ${state.profile.role === 'admin' ? `<button type="button" class="btn ghost" id="admin-btn"><i class="ph-fill ph-shield-check"></i>Admin</button>` : ''}
       <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>
       <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>`;
     $('#open-profile-btn').addEventListener('click', openProfileModal);
-    if (state.profile.role === 'admin') $('#admin-btn').addEventListener('click', openAdminModal);
   } else {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;
     $('#login-btn').addEventListener('click', () => openAuthModal('login'));
@@ -428,11 +426,13 @@ function openProfileModal() {
         <div class="err" id="profile-err"></div>
         <div class="modal-actions"><button type="submit" class="btn primary" id="profile-submit" style="flex:1">บันทึก</button></div>
       </form>
+      ${p.role === 'admin' ? `<button type="button" class="logout-link" id="admin-link" style="color:var(--leaf-deep)"><i class="ph-fill ph-shield-check"></i>แผงควบคุมผู้ดูแล</button>` : ''}
       <button type="button" class="logout-link" id="logout-btn"><i class="ph-fill ph-sign-out"></i>ออกจากระบบ</button>
     </div>
   </div>`;
   $('#profile-close').addEventListener('click', closeModal);
   $('#profile-overlay').addEventListener('click', e => { if (e.target.id === 'profile-overlay') closeModal(); });
+  if (p.role === 'admin') $('#admin-link').addEventListener('click', openAdminModal);
   $('#logout-btn').addEventListener('click', () => { closeModal(); handleLogout(); });
   $('#avatar-file').addEventListener('change', async () => {
     const file = $('#avatar-file').files[0];
