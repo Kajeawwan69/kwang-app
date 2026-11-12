@@ -463,35 +463,46 @@ function renderWorldBoard(filter = '') {
   }).join('');
 }
 
-function renderStatsForm() {
+function renderStatsButton() {
   const slot = $('#stats-form-slot');
-  slot.innerHTML = `
-  <form class="stats-form" id="stats-form">
-    <div class="grid">
-      <div class="field"><label for="s-species">สายพันธุ์ (ละติน) *</label><input id="s-species" required placeholder="เช่น Dorcus curvidens curvidens"></div>
-      <div class="field"><label for="s-species-th">ชื่อไทย</label><input id="s-species-th" placeholder="เช่น ด้วงคีมเคอร์วิเดนส์"></div>
-      <div class="field"><label for="s-breeder">ชื่อผู้เพาะ *</label><input id="s-breeder" required></div>
-      <div class="field"><label for="s-length">ความยาว (mm) *</label><input id="s-length" type="number" step="0.1" required></div>
+  slot.innerHTML = `<button type="button" class="btn primary" id="open-stats-modal"><i class="ph-fill ph-plus"></i>ส่งสถิติ</button>`;
+  $('#open-stats-modal').addEventListener('click', openStatsModal);
+}
+
+function openStatsModal() {
+  $('#modal-slot').innerHTML = `
+  <div class="modal-overlay" id="stats-modal-overlay">
+    <div class="modal" style="max-width:520px">
+      <button type="button" class="close" id="stats-modal-close">&times;</button>
+      <h3>ส่งสถิติของคุณ</h3>
+      <p class="sub">แชร์สถิติด้วงของคุณเข้าสู่กระดาน Ranking</p>
+      <form id="stats-form">
+        <div class="grid">
+          <div class="field"><label for="s-species">สายพันธุ์ (ละติน) *</label><input id="s-species" required placeholder="เช่น Dorcus curvidens curvidens"></div>
+          <div class="field"><label for="s-species-th">ชื่อไทย</label><input id="s-species-th" placeholder="เช่น ด้วงคีมเคอร์วิเดนส์"></div>
+          <div class="field"><label for="s-breeder">ชื่อผู้เพาะ *</label><input id="s-breeder" required></div>
+          <div class="field"><label for="s-length">ความยาว (mm) *</label><input id="s-length" type="number" step="0.1" required></div>
+        </div>
+        <button type="button" class="more-toggle" id="more-toggle">+ รายละเอียดเพิ่มเติม (ไม่บังคับ)</button>
+        <div class="grid more-fields" id="more-fields">
+          <div class="field"><label for="s-weight">น้ำหนักสูงสุด (g)</label><input id="s-weight" type="number" step="0.1"></div>
+          <div class="field"><label for="s-gen">Gen.</label><input id="s-gen" placeholder="F1 / CBF1 ..."></div>
+          <div class="field"><label for="s-duration">ระยะเวลาเลี้ยง (เดือน)</label><input id="s-duration" placeholder="เช่น 10 หรือ ~6"></div>
+          <div class="field"><label for="s-temp">อุณหภูมิ</label><input id="s-temp" placeholder="เช่น 21-23"></div>
+          <div class="field"><label for="s-container">ขนาดกระปุก</label><input id="s-container" placeholder="เช่น 1200 หรือ 450(L1-2),1400(L3)"></div>
+          <div class="field"><label for="s-mat">วัสดุรอง (Mat)</label><input id="s-mat"></div>
+          <div class="field"><label for="s-kinshi">เชื้อเห็ด (Kinshi)</label><input id="s-kinshi"></div>
+          <div class="field"><label for="s-image">ลิงก์รูปภาพ</label><input id="s-image" type="url" placeholder="วางลิงก์รูป (ถ้ามี)"></div>
+          <div class="field" style="grid-column:1/-1"><label for="s-remarks">หมายเหตุ</label><textarea id="s-remarks" rows="2"></textarea></div>
+        </div>
+        <div class="err" id="stats-err" style="color:#d13a4a;font-size:13px"></div>
+        <div class="modal-actions"><button type="submit" class="btn primary" id="stats-submit" style="flex:1">ส่งสถิติ</button></div>
+      </form>
     </div>
-    <button type="button" class="more-toggle" id="more-toggle">+ รายละเอียดเพิ่มเติม (ไม่บังคับ)</button>
-    <div class="grid more-fields" id="more-fields">
-      <div class="field"><label for="s-weight">น้ำหนักสูงสุด (g)</label><input id="s-weight" type="number" step="0.1"></div>
-      <div class="field"><label for="s-gen">Gen.</label><input id="s-gen" placeholder="F1 / CBF1 ..."></div>
-      <div class="field"><label for="s-duration">ระยะเวลาเลี้ยง (เดือน)</label><input id="s-duration" placeholder="เช่น 10 หรือ ~6"></div>
-      <div class="field"><label for="s-temp">อุณหภูมิ</label><input id="s-temp" placeholder="เช่น 21-23"></div>
-      <div class="field"><label for="s-container">ขนาดกระปุก</label><input id="s-container" placeholder="เช่น 1200 หรือ 450(L1-2),1400(L3)"></div>
-      <div class="field"><label for="s-mat">วัสดุรอง (Mat)</label><input id="s-mat"></div>
-      <div class="field"><label for="s-kinshi">เชื้อเห็ด (Kinshi)</label><input id="s-kinshi"></div>
-      <div class="field"><label for="s-image">ลิงก์รูปภาพ</label><input id="s-image" type="url" placeholder="วางลิงก์รูป (ถ้ามี)"></div>
-      <div class="field" style="grid-column:1/-1"><label for="s-remarks">หมายเหตุ</label><textarea id="s-remarks" rows="2"></textarea></div>
-    </div>
-    <div class="err" id="stats-err" style="color:#d13a4a;font-size:13px"></div>
-    <div class="submit-row"><button type="submit" class="btn primary" id="stats-submit">ส่งสถิติ</button></div>
-  </form>`;
-  $('#more-toggle').addEventListener('click', () => {
-    const el = $('#more-fields');
-    el.classList.toggle('open');
-  });
+  </div>`;
+  $('#stats-modal-close').addEventListener('click', closeModal);
+  $('#stats-modal-overlay').addEventListener('click', e => { if (e.target.id === 'stats-modal-overlay') closeModal(); });
+  $('#more-toggle').addEventListener('click', () => $('#more-fields').classList.toggle('open'));
   $('#stats-form').addEventListener('submit', handleStatSubmit);
 }
 
@@ -522,8 +533,7 @@ async function handleStatSubmit(e) {
   submitBtn.disabled = false;
   submitBtn.textContent = 'ส่งสถิติ';
   if (error) { errEl.textContent = 'ส่งไม่สำเร็จ: ' + error.message; return; }
-  $('#stats-form').reset();
-  $('#more-fields').classList.remove('open');
+  closeModal();
   toast('ส่งสถิติแล้ว!');
   loadWorldStats();
 }
@@ -535,7 +545,6 @@ function switchTab(tab) {
     $(`#pane-${name}`).style.display = tab === name ? '' : 'none';
   });
   if (tab === 'ranking' && !worldLoaded) {
-    renderStatsForm();
     loadWorldStats();
   }
 }
@@ -546,7 +555,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
   $('#stats-search').addEventListener('input', e => renderWorldBoard(e.target.value));
   await refreshSession();
-  renderStatsForm();
+  renderStatsButton();
   await Promise.all([loadFeed(), loadWorldStats()]);
 })();
 
