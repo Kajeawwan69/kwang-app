@@ -42,7 +42,7 @@ body{
 a{color:var(--leaf-deep);text-decoration:none;transition:color 160ms ease}
 a:hover{color:var(--text)}
 a:focus-visible,.btn:focus-visible,.social-links a:focus-visible{outline:2px solid var(--leaf);outline-offset:3px;border-radius:4px}
-.hero-band a:focus-visible,.hero-band .btn:focus-visible{outline-color:var(--gold)}
+.topnav a:focus-visible,.topnav .btn:focus-visible{outline-color:var(--gold)}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .en{font-family:var(--display);color:var(--text-3)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
@@ -63,21 +63,30 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
   background:radial-gradient(1100px 480px at 85% -20%, color-mix(in oklch, var(--copper) 60%, rgba(215,182,91,.14)), transparent 60%),
     linear-gradient(165deg,var(--forest-light),var(--forest-deep) 65%)}
 .hero-bg-beetle{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:min(560px,58vw);height:70%;opacity:.09;pointer-events:none;
-  background:url(img/beetle.png) no-repeat center/contain}
-.hero-band .topnav{border-bottom:1px solid rgba(255,255,255,.10)}
-.hero-band .brand b{color:#ffffff}
-.hero-band .brand b small{color:var(--gold-light)}
-.hero-band .navlinks a{color:rgba(255,255,255,.72)}
-.hero-band .navlinks a:hover{color:var(--gold-light)}
+  background:url(img/beetle.png) no-repeat center/contain;will-change:transform}
+.topnav .brand b{color:#ffffff}
+.topnav .brand b small{color:var(--gold-light)}
+.topnav .navlinks a{color:rgba(255,255,255,.72)}
+.topnav .navlinks a:hover{color:var(--gold-light)}
+.topnav .btn.ghost{color:#ffffff;border-color:rgba(255,255,255,.28)}
+.topnav .btn.ghost:hover{border-color:var(--gold-light);color:var(--gold-light)}
+.topnav .btn.primary{background:color-mix(in oklch, var(--copper) 60%, var(--gold));color:var(--ink)}
+.topnav .btn.primary:hover{background:color-mix(in oklch, var(--copper) 60%, #ffd84d)}
+.hero-band .hero-copy .leaf-chip{background:color-mix(in oklch, var(--copper) 10.8%, rgba(215,182,91,.12));border-color:color-mix(in oklch, var(--copper) 24%, rgba(215,182,91,.35));color:var(--gold-light)}
 .hero-band .btn.ghost{color:#ffffff;border-color:rgba(255,255,255,.28)}
 .hero-band .btn.ghost:hover{border-color:var(--gold-light);color:var(--gold-light)}
 .hero-band .btn.primary{background:color-mix(in oklch, var(--copper) 60%, var(--gold));color:var(--ink)}
 .hero-band .btn.primary:hover{background:color-mix(in oklch, var(--copper) 60%, #ffd84d)}
-.hero-band .hero-copy .leaf-chip{background:color-mix(in oklch, var(--copper) 10.8%, rgba(215,182,91,.12));border-color:color-mix(in oklch, var(--copper) 24%, rgba(215,182,91,.35));color:var(--gold-light)}
 
-/* nav */
-.topnav{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;position:relative;z-index:1}
+/* nav — fixed glass pill, morphs solid on scroll */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:50;padding:24px 0;
+  background:transparent;border-bottom:1px solid transparent;
+  transition:background 300ms ease,padding 300ms ease,backdrop-filter 300ms ease,border-color 300ms ease}
+.topnav.scrolled{background:rgba(10,20,15,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:14px 0;border-bottom-color:rgba(255,255,255,.1);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.nav-inner{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .topnav .nav-cta{margin-left:auto;padding:10px 22px;font-size:14.5px}
+@media(prefers-reduced-motion:reduce){.topnav{transition:none}}
 .brand{display:flex;align-items:center;gap:10px}
 .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--ink);color:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand .mark svg{width:17px;height:25px}
@@ -89,7 +98,8 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 @media(min-width:900px){.navlinks{display:flex}}
 
 /* hero */
-.hero{position:relative;z-index:1;display:flex;gap:56px;padding:44px 0 64px;align-items:center;flex-wrap:wrap}
+.hero{position:relative;z-index:1;display:flex;gap:56px;padding:116px 0 64px;align-items:center;flex-wrap:wrap}
+@media(max-width:640px){.hero{padding-top:100px}}
 .hero-copy{flex:1 1 420px;min-width:0;max-width:640px}
 .hero .wordmark{
   font-family:var(--display-serif);font-weight:600;font-style:normal;font-size:clamp(40px,6vw,64px);line-height:1;
@@ -114,7 +124,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 /* entrance animations */
 @keyframes nav-drop{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade-up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.hero-band .topnav{animation:nav-drop 1s cubic-bezier(.16,1,.3,1) both}
+.topnav{animation:nav-drop 1s cubic-bezier(.16,1,.3,1) both}
 .hero-copy>*{opacity:0;animation:fade-up .8s cubic-bezier(.16,1,.3,1) both}
 .hero-copy>.leaf-chip{animation-delay:.3s}
 .hero-copy>.wordmark{animation-delay:.45s}
@@ -125,8 +135,11 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero-copy>.fine{animation-delay:1.1s}
 .hero-copy>.hero-cta-group{animation-delay:1.2s}
 @media(prefers-reduced-motion:reduce){
-  .hero-band .topnav,.hero-copy>*{animation:none;opacity:1;transform:none}
+  .topnav,.hero-copy>*{animation:none;opacity:1;transform:none}
 }
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.in-view{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 .hero-flyers{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .hero-flyer{
   position:absolute;pointer-events:none;overflow:visible;
@@ -188,7 +201,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 section{padding:64px 0 8px}
 
 /* cta + footer */
-.final{margin:56px 0 0;padding:52px 24px;background:var(--surface);border:1px solid var(--border);border-radius:24px;text-align:center}
+.final{margin:56px 0 0;padding:52px 24px;background:var(--surface);border:1px solid var(--border);border-radius:24px;text-align:center;scroll-margin-top:90px}
 .final h2{font-size:clamp(28px,4vw,38px);font-weight:700;line-height:1.3}
 .final .en-sub{display:block;font-size:14px;color:var(--text-3);font-weight:500;margin-top:8px}
 .final p{font-size:16px;color:var(--text-2);margin:12px 0 0}
@@ -197,11 +210,19 @@ section{padding:64px 0 8px}
 .final-story{max-width:620px;margin:22px auto 0;padding:20px 22px;background:var(--surface-2);border:1px solid var(--border);border-radius:16px;text-align:left}
 .final-story p{margin:0;font-size:15.5px;color:var(--text-2)}
 .final-story-en{margin-top:10px!important;font-size:13.5px!important;color:var(--text-3)!important}
-.final-features{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0 0;text-align:left}
+.final-features{position:relative;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0 0;padding:18px;border-radius:20px;text-align:left;
+  background:radial-gradient(480px 220px at 10% 0%, color-mix(in srgb,var(--leaf) 16%,transparent), transparent 70%),
+    radial-gradient(420px 200px at 100% 100%, color-mix(in srgb,var(--gold) 22%,transparent), transparent 70%),
+    var(--surface-2)}
 @media(max-width:620px){.final-features{grid-template-columns:1fr}}
-.final-feature{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:14px}
-.final-feature i{font-size:20px;color:var(--leaf-deep);flex-shrink:0;margin-top:2px}
+.final-feature{display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.55);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);border-radius:14px;
+  transition:transform 200ms ease,box-shadow 200ms ease}
+.final-feature:hover{transform:translateY(-5px);box-shadow:0 10px 24px rgba(23,44,32,.1)}
+.final-feature i{font-size:18px;color:var(--leaf-deep);flex-shrink:0;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.65);display:flex;align-items:center;justify-content:center}
 .final-feature span{font-size:14.5px;color:var(--text-2);line-height:1.5}
+@media(prefers-reduced-motion:reduce){.final-feature{transition:none}}
 .soon-badge{display:inline-flex;align-items:center;gap:9px;margin-top:28px;padding:9px 20px;border-radius:100px;
   background:color-mix(in srgb,var(--gold) 18%,transparent);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
   font-weight:700;font-size:14px;color:var(--chitin)}
@@ -253,6 +274,13 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
     </linearGradient>
   </defs>
 </svg>
+
+<nav class="topnav" id="site-nav">
+  <div class="wrap nav-inner">
+    <div class="brand"><img class="brand-photo" src="img/beetle.png" alt=""><b>LIANGDUANG<small>BY PHUBAOKHAIDUANGBEETLES</small></b></div>
+    <a class="btn primary nav-cta" href="community.html">เข้าสู่เว็บไซต์</a>
+  </div>
+</nav>
 
 <div class="hero-band">
     <div class="hero-bg-beetle" aria-hidden="true"></div>
@@ -384,11 +412,6 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
           <span class="firefly" style="top:72%;left:84%;animation-delay:2.3s"></span>
     </div>
     <div class="wrap">
-      <nav class="topnav">
-        <div class="brand"><img class="brand-photo" src="img/beetle.png" alt=""><b>LIANGDUANG<small>BY PHUBAOKHAIDUANGBEETLES</small></b></div>
-        <a class="btn primary nav-cta" href="community.html">เข้าสู่เว็บไซต์</a>
-      </nav>
-
       <div class="hero">
         <div class="hero-copy">
           <span class="leaf-chip"><span style="width:6px;height:6px;border-radius:50%;background:color-mix(in oklch, var(--copper) 60%, var(--gold))"></span>ชุมชนคนเลี้ยงด้วง</span>
@@ -410,7 +433,7 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
   </div>
 
 <div class="wrap">
-  <div class="final" id="final">
+  <div class="final reveal" id="final">
     <h2>เตรียมพบกับแอปเลี้ยงด้วง<br><span class="final-appname">กว่าง<span class="en">(KWANG)</span></span></h2>
     <div class="final-story">
       <p>ทุกคนคงเจอปัญหาเลี้ยงด้วง ตอนแรกก็จะจำได้ว่าเลี้ยงอะไร กี่ตัว เปลี่ยนอาหารวันไหนหรือยัง แต่พอมันเรียกกองทัพ หรือเพื่อนๆมันมา มันเยอะจนตาลาย จนทำไม่ถูกว่าจะเริ่มจากตัวไหนก่อนดี แอปนี้จึงจะมาแก้ปัญหานั้นครับ</p>
@@ -425,7 +448,7 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
     <span class="soon-badge"><span class="dot"></span>Coming soon!</span>
   </div>
 
-  <footer>
+  <footer class="reveal">
     <div class="foot">
       <div class="brand"><span class="mark"><i class="ph-fill ph-bug"></i></span><b style="display:block">LIANGDUANG<small>by ZOOTRONIA</small></b></div>
       <span>เกี่ยวกับเรา</span>
@@ -442,5 +465,47 @@ footer{margin-top:56px;padding:28px 0 40px;border-top:1px solid var(--border)}
   </footer>
 </div>
 
+<script>
+(() => {
+  const nav = document.getElementById('site-nav');
+  const onNavScroll = () => { if (nav) nav.classList.toggle('scrolled', window.scrollY > 50); };
+  onNavScroll();
+  window.addEventListener('scroll', onNavScroll, { passive: true });
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduceMotion) {
+    const beetle = document.querySelector('.hero-bg-beetle');
+    const flyers = document.querySelector('.hero-flyers');
+    const heroCopy = document.querySelector('.hero-copy');
+    const heroBand = document.querySelector('.hero-band');
+    let ticking = false;
+    const applyParallax = () => {
+      const vh = (heroBand && heroBand.offsetHeight) || window.innerHeight;
+      const t = Math.min(1, window.scrollY / vh);
+      if (beetle) beetle.style.transform = `translateY(${-50 + t * 20}%)`;
+      if (flyers) flyers.style.transform = `translateY(${t * 40}px)`;
+      if (heroCopy) heroCopy.style.opacity = String(Math.max(0, 1 - t * 1.6));
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(applyParallax); ticking = true; }
+    }, { passive: true });
+    applyParallax();
+  }
+
+  const revealEls = document.querySelectorAll('.reveal');
+  if (revealEls.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('in-view'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -100px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in-view'));
+  }
+})();
+</script>
 </body>
 </html>
