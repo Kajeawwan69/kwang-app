@@ -98,6 +98,8 @@ const state = {
 
 /* ให้ my-beetles.js (คนละไฟล์/คนละ closure) อ่านโปรไฟล์ปัจจุบันได้ */
 window.getCurrentProfile = () => state.profile;
+/* ให้ my-beetles.js อ่านข้อมูล Ranking ที่โหลดไว้แล้วได้ (ไม่ query Supabase ซ้ำ) */
+window.getWorldStats = () => worldStats;
 
 /* ---------- auth ---------- */
 

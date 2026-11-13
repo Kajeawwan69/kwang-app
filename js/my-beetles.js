@@ -59,10 +59,12 @@ const LOG_META = {
   created:   { icon: 'ph-sparkle',        label: 'เริ่มบันทึก' },
 };
 const FILTERS = [
-  { id: 'all',   label: 'ทั้งหมด',    match: () => true },
-  { id: 'larva', label: 'หนอน',       match: s => s === 'l1' || s === 'l2' || s === 'l3' },
-  { id: 'pupa',  label: 'ดักแด้',     match: s => s === 'pupa' },
-  { id: 'adult', label: 'ตัวเต็มวัย', match: s => s === 'adult' },
+  { id: 'all',    label: 'ทั้งหมด',    match: () => true },
+  { id: 'larva',  label: 'หนอน',       match: b => b.stage === 'l1' || b.stage === 'l2' || b.stage === 'l3' },
+  { id: 'pupa',   label: 'ดักแด้',     match: b => b.stage === 'pupa' },
+  { id: 'adult',  label: 'ตัวเต็มวัย', match: b => b.stage === 'adult' },
+  { id: 'male',   label: 'ผู้',        match: b => b.sex === 'male' },
+  { id: 'female', label: 'เมีย',       match: b => b.sex === 'female' },
 ];
 
 const $ = sel => document.querySelector(sel);
@@ -297,6 +299,14 @@ async function renderOverview(root) {
     ? `<div class="mb-profile-head">${profileInnerHTML}</div>`
     : `<div class="mb-profile-wx mb-profile-wx-standalone" id="mb-wx-body"><span class="mb-wx-note">กำลังโหลดสภาพอากาศ...</span></div>`;
 
+  const worldStats = (window.getWorldStats && window.getWorldStats()) || [];
+  const worldSpeciesSet = new Set(worldStats.map(s => (s.species || '').trim().toLowerCase()).filter(Boolean));
+  const myNormSpecies = new Set([...spSet].map(s => s.toLowerCase()));
+  const knownOverlap = worldSpeciesSet.size
+    ? [...myNormSpecies].filter(s => worldSpeciesSet.has(s)).length
+    : 0;
+  const speciesPct = worldSpeciesSet.size ? Math.min(100, Math.round(knownOverlap / worldSpeciesSet.size * 100)) : null;
+
   root.innerHTML = `
     ${profileHeadHTML}
     <div class="mb-hero" ${heroPhoto ? `style="background-image:linear-gradient(90deg,#10160f 30%,rgba(16,22,15,.55)),url('${esc(heroPhoto.photo)}')"` : ''}>
@@ -307,7 +317,19 @@ async function renderOverview(root) {
       <button type="button" class="mb-tile accent-leaf" data-go="all"><i class="ph-fill ph-identification-card"></i><div><b>${beetles.length}</b><span>ตัวทั้งหมด</span></div></button>
       <button type="button" class="mb-tile accent-copper" data-go="all"><i class="ph-fill ph-dna"></i><div><b>${spSet.size}</b><span>สายพันธุ์</span></div></button>
       <button type="button" class="mb-tile accent-gold" data-go="larva"><i class="ph-fill ph-bug"></i><div><b>${larvae}</b><span>หนอน</span></div></button>
+      <button type="button" class="mb-tile accent-pupa" data-go="pupa"><i class="ph-fill ph-leaf"></i><div><b>${stageCount.pupa || 0}</b><span>ดักแด้</span></div></button>
       <button type="button" class="mb-tile accent-trophy" data-go="adult"><i class="ph-fill ph-trophy"></i><div><b>${stageCount.adult || 0}</b><span>ตัวเต็มวัย</span></div></button>
+    </div>
+    ${speciesPct === null ? '' : `
+    <div class="mb-species-progress">
+      <div class="row"><span>สะสมสายพันธุ์เทียบกับชุมชน</span><b>${knownOverlap}/${worldSpeciesSet.size}</b></div>
+      <div class="mb-power-bar"><div class="mb-power-fill" style="width:${speciesPct}%"></div></div>
+    </div>`}
+    <div class="mb-quick-access">
+      <button type="button" class="mb-qa-tile" id="qa-collection"><i class="ph-fill ph-squares-four"></i><span>ด้วงของฉัน</span></button>
+      <button type="button" class="mb-qa-tile" id="qa-map"><i class="ph-fill ph-map-trifold"></i><span>แผนที่สำรวจ</span></button>
+      <button type="button" class="mb-qa-tile" id="qa-mission"><i class="ph-fill ph-target"></i><span>ภารกิจ</span></button>
+      <button type="button" class="mb-qa-tile" id="qa-market"><i class="ph-fill ph-storefront"></i><span>ตลาด</span></button>
     </div>
     ${due.length === 0 ? '' : `
     <div class="mb-due">
@@ -349,6 +371,13 @@ async function renderOverview(root) {
     el.addEventListener('click', () => goToList(el.dataset.go)));
   const seeAll = $('#mb-see-all');
   if (seeAll) seeAll.addEventListener('click', () => goToList());
+  $('#qa-collection').addEventListener('click', () => goToList());
+  $('#qa-map').addEventListener('click', () => toast('แผนที่สำรวจ — เร็วๆ นี้ครับ'));
+  $('#qa-mission').addEventListener('click', () => toast('ระบบภารกิจ — เร็วๆ นี้ครับ'));
+  $('#qa-market').addEventListener('click', () => {
+    const marketTab = document.querySelector('.tab[data-tab="auction"]');
+    if (marketTab) marketTab.click();
+  });
 }
 
 /* ---------- list ---------- */
@@ -367,6 +396,7 @@ function beetleCardHTML(b) {
         <b>${esc(beetleTitle(b))}</b>
         <small>${esc(beetleSub(b))}</small>
         ${beetleMeas(b) ? `<span class="mb-meas">${esc(beetleMeas(b))}</span>` : ''}
+        <span class="mb-card-date">บันทึก ${fmtDate(b.acquiredDate || (b.createdAt || '').slice(0, 10))}</span>
       </div>
     </div>`;
 }
@@ -384,7 +414,7 @@ async function renderList(root, initialFilter) {
 
   const draw = () => {
     const f = FILTERS.find(x => x.id === filter);
-    const list = beetles.filter(b => f.match(b.stage) &&
+    const list = beetles.filter(b => f.match(b) &&
       (!q || [b.name, b.code, b.species, b.bloodline, b.container].join(' ').toLowerCase().includes(q)));
     $('#mb-list-body').innerHTML = list.length === 0
       ? (beetles.length === 0
