@@ -375,13 +375,11 @@ async function handlePostSubmit(e) {
 function renderAuthSlot() {
   const slot = $('#auth-slot');
   if (state.user && state.profile) {
-    const rank = rankInfo(state.profile.rank_stage);
     const avatar = state.profile.avatar_url
       ? `<img src="${esc(state.profile.avatar_url)}" alt="">`
       : `<i class="ph-fill ph-user-circle"></i>`;
     slot.innerHTML = `
-      <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>
-      <span class="rank-chip" title="${esc(state.profile.rank_species || '')}"><i class="ph-fill ${rank.icon}"></i>${rank.label}</span>`;
+      <button type="button" class="user-chip" id="open-profile-btn">${avatar}${esc(state.profile.display_name || state.profile.username)}</button>`;
     $('#open-profile-btn').addEventListener('click', openProfileModal);
   } else {
     slot.innerHTML = `<button type="button" class="btn primary" id="login-btn">เข้าสู่ระบบ</button>`;

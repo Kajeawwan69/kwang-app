@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LIANGDUANG — ชุมชนคนเลี้ยงด้วง</title>
 <meta name="description" content="LIANGDUANG: ชุมชนสำหรับคนเลี้ยงด้วง โดย PHUBAOKHAIDUANGBEETLES. Born from Thailand. Built for Beetle Keepers Worldwide.">
-<meta name="theme-color" content="#f6f8f3">
+<meta name="theme-color" content="#F5F4EC">
 <meta property="og:type" content="website">
 <meta property="og:title" content="LIANGDUANG — ชุมชนคนเลี้ยงด้วง">
 <meta property="og:description" content="ชุมชนสำหรับคนเลี้ยงด้วง โดย PHUBAOKHAIDUANGBEETLES">
@@ -18,11 +18,12 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <style>
 :root{
-  --bg:#f6f8f3; --surface:#ffffff; --surface-2:#f2f7ec; --border:rgba(18,48,28,.16);
-  --text:#10160f; --text-2:#23302a; --text-3:#62736a;
-  --leaf:#17a75a; --leaf-deep:#0e5c33; --on-leaf:#ffffff; --chitin:#6d4f00;
-  --gold:#ffc61a; --ink:#10160f; --pale:#a9bfae;
-  --copper:oklch(76% 0.15 58); --copper-deep:oklch(37% 0.12 45);
+  --bg:#F5F4EC; --surface:#ffffff; --surface-2:#E4E8DF; --border:rgba(23,44,32,.16);
+  --text:#172C20; --text-2:#2A3F30; --text-3:#4A5A4F;
+  --leaf:#2F5C40; --leaf-deep:#172C20; --on-leaf:#F5F4EC; --chitin:#6d4f00;
+  --gold:#D7B65B; --ink:#172C20; --pale:#a9bfae;
+  --copper:oklch(78% 0.09 75); --copper-deep:oklch(42% 0.07 65);
+  --forest-light:#28452f; --forest-deep:#0d1811; --gold-light:#E8CF8E;
   --display:'Kanit',system-ui,sans-serif;
   --body:'Kanit',system-ui,sans-serif;
 }
@@ -30,8 +31,8 @@
 body{
   margin:0;font-family:var(--body);color:var(--text);line-height:1.65;
   background:
-    radial-gradient(900px 360px at 8% -10%, rgba(23,167,90,.10), transparent 72%),
-    radial-gradient(620px 280px at 96% -2%, rgba(255,198,26,.16), transparent 72%),
+    radial-gradient(900px 360px at 8% -10%, rgba(23,44,32,.08), transparent 72%),
+    radial-gradient(620px 280px at 96% -2%, rgba(215,182,91,.16), transparent 72%),
     var(--bg);
 }
 ::selection{background:var(--leaf-deep);color:#ffffff}
@@ -56,20 +57,20 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 
 /* hero band — dark premium panel */
 .hero-band{position:relative;overflow:hidden;
-  background:radial-gradient(1100px 480px at 85% -20%, color-mix(in oklch, var(--copper) 60%, rgba(255,198,26,.14)), transparent 60%),
-    linear-gradient(165deg,#141c14,#0c110b 65%)}
+  background:radial-gradient(1100px 480px at 85% -20%, color-mix(in oklch, var(--copper) 60%, rgba(215,182,91,.14)), transparent 60%),
+    linear-gradient(165deg,var(--forest-light),var(--forest-deep) 65%)}
 .hero-bg-beetle{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:min(560px,58vw);height:70%;opacity:.09;pointer-events:none;
   background:url(img/beetle.png) no-repeat center/contain}
 .hero-band .topnav{border-bottom:1px solid rgba(255,255,255,.10)}
 .hero-band .brand b{color:#ffffff}
-.hero-band .brand b small{color:color-mix(in oklch, var(--copper) 70%, var(--gold))}
+.hero-band .brand b small{color:var(--gold-light)}
 .hero-band .navlinks a{color:rgba(255,255,255,.72)}
-.hero-band .navlinks a:hover{color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
+.hero-band .navlinks a:hover{color:var(--gold-light)}
 .hero-band .btn.ghost{color:#ffffff;border-color:rgba(255,255,255,.28)}
-.hero-band .btn.ghost:hover{border-color:color-mix(in oklch, var(--copper) 60%, var(--gold));color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
+.hero-band .btn.ghost:hover{border-color:var(--gold-light);color:var(--gold-light)}
 .hero-band .btn.primary{background:color-mix(in oklch, var(--copper) 60%, var(--gold));color:var(--ink)}
 .hero-band .btn.primary:hover{background:color-mix(in oklch, var(--copper) 60%, #ffd84d)}
-.hero-band .hero-copy .leaf-chip{background:color-mix(in oklch, var(--copper) 10.8%, rgba(255,198,26,.12));border-color:color-mix(in oklch, var(--copper) 24%, rgba(255,198,26,.35));color:color-mix(in oklch, var(--copper) 60%, var(--gold))}
+.hero-band .hero-copy .leaf-chip{background:color-mix(in oklch, var(--copper) 10.8%, rgba(215,182,91,.12));border-color:color-mix(in oklch, var(--copper) 24%, rgba(215,182,91,.35));color:var(--gold-light)}
 
 /* nav */
 .topnav{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;position:relative;z-index:1}
@@ -106,9 +107,9 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
 .hero-flyer.b{width:80px;aspect-ratio:8/5;animation:fly-b 18s ease-in-out infinite 2.2s}
 .hero-flyer.c{width:95px;aspect-ratio:8/5;animation:fly-c 25s ease-in-out infinite 1s}
 .hero-flyer.d{width:70px;aspect-ratio:8/5;animation:fly-d 19s ease-in-out infinite 3.4s}
-.bt-part{stroke:rgba(255,198,26,.5);stroke-width:.7;stroke-linejoin:round}
+.bt-part{stroke:rgba(215,182,91,.5);stroke-width:.7;stroke-linejoin:round}
 .bt-gloss{fill:#fff;opacity:.26}
-.bt-abdomen{fill:#1b1210;stroke:rgba(255,198,26,.35);stroke-width:.6}
+.bt-abdomen{fill:#1b1210;stroke:rgba(215,182,91,.35);stroke-width:.6}
 .bt-leg{fill:none;stroke:#120c0a;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .bt-antenna{fill:none;stroke:#120c0a;stroke-width:1.3;stroke-linecap:round}
 .bt-membrane{fill:rgba(255,224,170,.42);stroke:rgba(255,224,170,.75);stroke-width:.8}

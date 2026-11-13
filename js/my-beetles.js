@@ -309,7 +309,7 @@ async function renderOverview(root) {
 
   root.innerHTML = `
     ${profileHeadHTML}
-    <div class="mb-hero" ${heroPhoto ? `style="background-image:linear-gradient(90deg,#10160f 30%,rgba(16,22,15,.55)),url('${esc(heroPhoto.photo)}')"` : ''}>
+    <div class="mb-hero" ${heroPhoto ? `style="background-image:linear-gradient(90deg,rgba(13,24,17,.9) 30%,rgba(13,24,17,.55)),url('${esc(heroPhoto.photo)}')"` : ''}>
       <i class="ph-fill ph-crown-simple"></i>
       <div><div class="mb-hero-n">${beetles.length} ตัว</div><div class="mb-hero-l">คอลเลกชันของคุณ</div></div>
     </div>
@@ -322,7 +322,7 @@ async function renderOverview(root) {
     </div>
     ${speciesPct === null ? '' : `
     <div class="mb-species-progress">
-      <div class="row"><span>สะสมสายพันธุ์เทียบกับชุมชน</span><b>${knownOverlap}/${worldSpeciesSet.size}</b></div>
+      <div class="row"><i class="ph-fill ph-trophy"></i><span class="lbl">สะสมสายพันธุ์เทียบกับชุมชน</span><b>${knownOverlap}/${worldSpeciesSet.size}</b></div>
       <div class="mb-power-bar"><div class="mb-power-fill" style="width:${speciesPct}%"></div></div>
     </div>`}
     <div class="mb-quick-access">
